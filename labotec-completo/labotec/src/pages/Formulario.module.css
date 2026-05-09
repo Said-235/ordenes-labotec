@@ -1,0 +1,48 @@
+.page { background:var(--gris-claro); min-height:100vh; }
+.body { max-width:800px; margin:0 auto; padding:26px 14px; }
+.seccion { background:var(--blanco); border-radius:12px; padding:22px 26px; margin-bottom:18px; border:1px solid var(--borde); box-shadow:var(--shadow-card); display:flex; flex-direction:column; gap:14px; }
+.secTitulo { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--cyan-dark); padding-bottom:10px; border-bottom:2px solid var(--cyan-light); font-family:var(--font-mono); margin:0; }
+.campo { display:flex; flex-direction:column; gap:4px; }
+.campoLabel { font-size:11px; font-weight:700; color:var(--gris-medio); letter-spacing:.3px; }
+.input { width:100%; padding:10px 13px; border:1.5px solid var(--borde); border-radius:8px; font-size:14px; color:var(--negro); background:#fafefe; outline:none; box-sizing:border-box; transition:border-color .2s; font-family:var(--font-base); }
+.input:focus { border-color:var(--cyan); }
+.inputReadonly { background:var(--gris-claro); color:var(--gris-medio); }
+.inputFolio    { background:var(--gris-claro); color:var(--cyan-dark); font-weight:800; font-family:var(--font-mono); }
+.inputFlex     { flex:1; }
+.inputCodigo   { width:100px; flex:none; }
+.inputNombre   { flex:2; min-width:100px; }
+.inputMotivo   { flex:3; min-width:120px; }
+.textarea      { resize:vertical; min-height:90px; line-height:1.6; font-size:13px; }
+.grid2         { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.filaItem      { display:flex; gap:8px; align-items:flex-start; }
+.filaRefaccion { flex-wrap:wrap; }
+.btnRemover    { width:34px; height:38px; background:var(--error-light); border:1px solid var(--error-border); color:var(--error); border-radius:8px; font-size:16px; flex-shrink:0; cursor:pointer; }
+.btnRemover:hover { background:var(--error-border); }
+.btnAgregar    { align-self:flex-start; padding:7px 14px; background:var(--cyan-light); color:var(--cyan-dark); border:1px solid var(--cyan-mid); border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-base); }
+.btnAgregar:hover { background:var(--cyan-mid); }
+.tipoBadge     { padding:5px 14px; border-radius:20px; font-size:10px; font-weight:800; font-family:var(--font-mono); letter-spacing:1.5px; border:1px solid; }
+.btnGenerar    { display:block; width:100%; padding:16px; background:linear-gradient(135deg,var(--negro) 0%,#2a2a2a 100%); color:var(--cyan); border:2px solid var(--cyan); border-radius:12px; font-size:16px; font-weight:800; letter-spacing:1px; box-shadow:var(--shadow-cyan); cursor:pointer; font-family:var(--font-base); transition:opacity .2s; }
+.btnGenerar:hover { opacity:.88; }
+
+/* Hora + AM/PM */
+.horaWrap   { display:flex; align-items:center; gap:8px; }
+.inputHora  { flex:1; padding:10px 13px; border:1.5px solid var(--borde); border-radius:8px; font-size:14px; color:var(--negro); background:#fafefe; outline:none; box-sizing:border-box; transition:border-color .2s; cursor:pointer; font-family:var(--font-base); }
+.inputHora:focus,.inputHora:hover { border-color:var(--cyan); }
+.inputHora::-webkit-calendar-picker-indicator { position:absolute; right:0; top:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.ampmLabel  { flex-shrink:0; padding:4px 9px; border-radius:6px; font-size:11px; font-weight:800; font-family:var(--font-mono); letter-spacing:.5px; }
+.am { background:rgba(78,205,196,.12); color:var(--cyan-dark); border:1px solid rgba(78,205,196,.3); }
+.pm { background:rgba(167,139,250,.12); color:#7c5cbf; border:1px solid rgba(167,139,250,.3); }
+
+@media (max-width:600px) {
+  .grid2   { grid-template-columns:1fr; }
+  .seccion { padding:18px 14px; }
+}
+
+/* Auto-guardado indicator */
+.autoGuardado {
+  font-size: 10px;
+  color: rgba(78, 205, 196, 0.5);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+  animation: pulse 2s ease-in-out infinite;
+}

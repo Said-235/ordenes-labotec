@@ -1,0 +1,7 @@
+.nav { background:var(--negro); padding:12px 24px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:100; border-bottom:3px solid var(--cyan); flex-wrap:wrap; }
+.btnBack { padding:7px 14px; background:rgba(78,205,196,.1); border:1px solid rgba(78,205,196,.25); color:var(--cyan); border-radius:8px; font-size:13px; font-weight:600; transition:background .2s; }
+.btnBack:hover { background:rgba(78,205,196,.18); }
+.logo { width:32px; height:32px; object-fit:contain; border-radius:50%; margin-left:4px; }
+.nombre { color:var(--blanco); font-weight:700; font-size:14px; letter-spacing:.5px; }
+.subtitulo { color:var(--cyan); font-size:11px; letter-spacing:2px; font-family:var(--font-mono); text-transform:uppercase; }
+.extra { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }

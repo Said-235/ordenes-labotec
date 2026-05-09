@@ -1,0 +1,4 @@
+import styles from './Tag.module.css'
+export default function Tag({ children, variante='default' }) {
+  return <span className={`${styles.tag} ${styles[variante]}`}>{children}</span>
+}

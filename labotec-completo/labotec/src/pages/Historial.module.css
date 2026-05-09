@@ -1,0 +1,8 @@
+.page { background:#0f0f0f; min-height:100vh; }
+.body { max-width:960px; margin:0 auto; padding:22px 14px; }
+.btnNueva { padding:8px 18px; background:var(--cyan); border:none; color:var(--negro); border-radius:8px; font-size:13px; font-weight:800; font-family:var(--font-base); cursor:pointer; }
+.lista { display:flex; flex-direction:column; gap:8px; }
+.empty { text-align:center; padding:56px 20px; color:rgba(255,255,255,.2); }
+.emptyIcon  { font-size:44px; display:block; margin-bottom:14px; }
+.emptyTitulo { font-size:15px; font-weight:600; margin-bottom:6px; color:rgba(255,255,255,.4); }
+.emptyDesc  { font-size:12px; }

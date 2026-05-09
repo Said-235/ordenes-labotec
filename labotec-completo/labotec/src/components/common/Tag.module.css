@@ -1,0 +1,5 @@
+.tag { font-size:10px; border-radius:5px; padding:2px 7px; font-family:var(--font-mono); }
+.default { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:rgba(255,255,255,.35); }
+.cyan    { background:rgba(78,205,196,.06); border:1px solid rgba(78,205,196,.15); color:var(--cyan); }
+.naranja { background:rgba(255,107,0,.08); border:1px solid rgba(255,107,0,.2); color:rgba(255,150,50,.8); }
+.verde   { background:rgba(78,205,196,.05); border:1px solid rgba(78,205,196,.15); color:rgba(78,205,196,.7); }

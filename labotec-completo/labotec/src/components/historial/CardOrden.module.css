@@ -1,0 +1,21 @@
+.card { background:#1a1a1a; border:1px solid rgba(78,205,196,.07); border-radius:12px; padding:14px 18px; display:grid; grid-template-columns:44px 1fr auto; gap:14px; align-items:center; cursor:pointer; transition:all .15s; }
+.card:hover { background:#1e1e1e; border-color:rgba(78,205,196,.2); }
+.tipoCol   { text-align:center; }
+.tipoIcon  { font-size:20px; display:block; margin-bottom:2px; }
+.tipoBadge { font-size:8px; font-weight:800; font-family:var(--font-mono); letter-spacing:1px; }
+.info      { min-width:0; }
+.fila1     { display:flex; align-items:center; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
+.folio     { font-family:var(--font-mono); font-weight:800; color:var(--cyan); font-size:14px; }
+.fecha     { font-size:10px; color:rgba(255,255,255,.3); font-family:var(--font-mono); }
+.responsable { font-weight:700; color:#e8e8e8; font-size:13px; margin-bottom:3px; }
+.fila3     { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.meta      { font-size:11px; color:rgba(255,255,255,.45); }
+.metaMono  { font-family:var(--font-mono); color:rgba(255,255,255,.3); }
+.dot       { color:rgba(255,255,255,.2); font-size:11px; }
+.tags      { margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; }
+.mark      { background:rgba(78,205,196,.4); color:#111; border-radius:2px; padding:0 1px; }
+.acciones  { display:flex; flex-direction:column; gap:5px; }
+.btnVer    { padding:6px 14px; background:rgba(78,205,196,.1); border:1px solid rgba(78,205,196,.25); color:var(--cyan); border-radius:7px; font-size:12px; font-weight:700; font-family:var(--font-base); white-space:nowrap; }
+.btnEliminar { padding:5px 11px; background:transparent; border:1px solid rgba(204,0,0,.25); color:rgba(255,80,80,.7); border-radius:7px; font-size:11px; font-family:var(--font-base); }
+.btnVer:hover       { background:rgba(78,205,196,.18); }
+.btnEliminar:hover  { background:rgba(204,0,0,.1); }
