@@ -1,0 +1,16 @@
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px; background: var(--cyan); border: none;
+  color: var(--negro); border-radius: 8px; font-size: 13px;
+  font-weight: 800; font-family: var(--font-base); cursor: pointer;
+  transition: background .2s, opacity .2s, transform .15s;
+  white-space: nowrap; box-shadow: 0 4px 14px rgba(78,205,196,.3);
+}
+.btn:hover:not(:disabled) { background:var(--cyan-dark); transform:translateY(-1px); }
+.btn:disabled { opacity:.7; cursor:not-allowed; }
+.cargando { background:var(--cyan-dark); }
+.icon { font-size:14px; line-height:1; }
+.spinner { display:inline-block; width:13px; height:13px; border:2px solid rgba(0,0,0,.25); border-top-color:var(--negro); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+.btnSm { padding:5px 11px; font-size:11px; font-weight:700; box-shadow:none; gap:5px; }
+.btnSm .icon { font-size:12px; }
+.btnSm .spinner { width:11px; height:11px; }

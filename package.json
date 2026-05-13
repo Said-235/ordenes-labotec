@@ -1,0 +1,12 @@
+{
+  "name": "labotec-completo",
+  "private": true,
+  "workspaces": [
+    "labotec"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=labotec",
+    "build": "npm run build --workspace=labotec",
+    "preview": "npm run preview --workspace=labotec"
+  }
+}

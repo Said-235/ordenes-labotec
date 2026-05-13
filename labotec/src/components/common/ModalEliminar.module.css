@@ -1,0 +1,10 @@
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); display:flex; align-items:center; justify-content:center; z-index:300; padding:20px; }
+.card { background:#1a1a1a; border:1px solid var(--borde); border-radius:16px; padding:28px 32px; max-width:360px; width:100%; text-align:center; animation:fadeIn .15s ease; }
+.icon   { font-size:34px; display:block; margin-bottom:12px; }
+.titulo { color:#fff; font-weight:700; font-size:17px; margin-bottom:8px; }
+.desc   { color:rgba(255,255,255,.45); font-size:13px; line-height:1.5; margin-bottom:24px; }
+.acciones { display:flex; gap:10px; justify-content:center; }
+.btnCancelar  { padding:9px 22px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:8px; font-size:14px; }
+.btnConfirmar { padding:9px 22px; background:var(--error); border:none; color:#fff; border-radius:8px; font-size:14px; font-weight:600; }
+.btnCancelar:hover  { background:rgba(255,255,255,.12); }
+.btnConfirmar:hover { background:#aa0000; }

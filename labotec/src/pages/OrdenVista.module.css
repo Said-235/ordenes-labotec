@@ -1,0 +1,5 @@
+.page { background:var(--negro); min-height:100vh; }
+.body { max-width:840px; margin:22px auto; padding:0 12px; }
+.docWrap { border-radius:6px; overflow:hidden; box-shadow:var(--shadow-dark); }
+.btnHistorial { padding:7px 13px; background:rgba(78,205,196,.08); border:1px solid rgba(78,205,196,.2); color:var(--cyan); border-radius:8px; font-size:12px; font-weight:600; font-family:var(--font-base); cursor:pointer; }
+.badge { background:rgba(78,205,196,.15); color:var(--cyan); border-radius:20px; padding:3px 10px; font-size:11px; font-family:var(--font-mono); border:1px solid rgba(78,205,196,.3); }

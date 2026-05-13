@@ -1,0 +1,141 @@
+/* ═══════════════════════════════════════════════════════════════
+   DOCUMENTO IMPRIMIBLE — LABOTEC Engineering Services
+   Responsive: móvil / tablet / desktop + captura PDF correcta
+═══════════════════════════════════════════════════════════════ */
+
+.documento { background:var(--blanco); font-family:'Segoe UI',Arial,sans-serif; width:100%; overflow-x:hidden; box-sizing:border-box; }
+
+/* ── Encabezado ── */
+.encabezado { background:var(--negro); display:flex; align-items:stretch; flex-wrap:wrap; }
+.logoArea   { background:var(--blanco); padding:12px 16px; display:flex; align-items:center; justify-content:center; border-right:5px solid var(--cyan); flex-shrink:0; }
+.logoImg    { width:80px; height:80px; object-fit:contain; border-radius:50%; }
+.tituloArea { padding:14px 16px; display:flex; flex-direction:column; justify-content:center; flex:1; min-width:0; gap:4px; }
+.empresa    { font-size:18px; font-weight:900; color:var(--blanco); letter-spacing:.5px; line-height:1.2; word-break:break-word; }
+.subtitulo  { font-size:10px; color:var(--cyan); letter-spacing:2px; text-transform:uppercase; font-family:var(--font-mono); }
+.tipoBadge  { display:inline-block; padding:3px 10px; border-radius:20px; font-size:9px; font-weight:800; letter-spacing:1px; font-family:var(--font-mono); width:fit-content; max-width:100%; border:1px solid; }
+.folioArea  { padding:10px 14px; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:3px; border-left:1px solid rgba(255,255,255,.1); flex-shrink:0; }
+.folioLabel { font-size:8px; color:rgba(255,255,255,.4); letter-spacing:2px; text-transform:uppercase; font-family:var(--font-mono); }
+.folioNum   { font-size:20px; font-weight:900; color:var(--cyan); font-family:var(--font-mono); line-height:1; white-space:nowrap; }
+.folioFecha { font-size:8px; color:rgba(255,255,255,.55); font-family:var(--font-mono); text-align:right; max-width:130px; line-height:1.3; }
+
+/* ── Bandas ── */
+.banda        { height:4px; background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan-dark) 50%,var(--negro) 100%); }
+.bandaInferior{ height:3px; background:linear-gradient(90deg,var(--negro) 0%,var(--cyan) 50%,var(--cyan-dark) 100%); }
+
+/* ── Cuerpo ── */
+.cuerpo  { padding:16px; display:flex; flex-direction:column; gap:18px; }
+.seccion { }
+
+.secLabel { font-size:8px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--blanco); background:var(--negro); padding:4px 12px; border-radius:3px; display:inline-block; margin-bottom:10px; font-family:var(--font-mono); border-left:4px solid var(--cyan); max-width:100%; box-sizing:border-box; }
+
+/* ── Tablas ── */
+.tablaWrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.tabla     { width:100%; min-width:100%; border-collapse:collapse; table-layout:fixed; }
+
+.th { padding:7px 8px; border:1px solid var(--borde); background:var(--cyan-light); color:var(--negro); font-size:8.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; font-family:var(--font-mono); text-align:left; word-break:break-word; }
+.thNum    { width:32px; text-align:center; }
+.thCodigo { width:80px; }
+
+.td { padding:7px 8px; border:1px solid var(--borde); vertical-align:top; line-height:1.45; font-size:11px; color:var(--negro); word-break:break-word; overflow-wrap:break-word; }
+.tdLabel { padding:7px 8px; border:1px solid var(--borde); background:#f9fefe; width:30%; font-weight:700; font-size:8.5px; letter-spacing:.3px; color:var(--gris-medio); text-transform:uppercase; vertical-align:top; word-break:break-word; }
+.tdBold  { font-weight:700; }
+.tdMono  { font-family:var(--font-mono); font-size:10.5px; }
+.tdNum   { text-align:center; font-family:var(--font-mono); font-size:10px; color:var(--cyan); font-weight:800; }
+.tdVacio { text-align:center; color:#aaa; font-style:italic; padding:12px 8px; font-size:11px; }
+.trPar td, .trPar .tdLabel { background:var(--cyan-light) !important; }
+
+/* ── Comentarios ── */
+.comentariosBox   { background:#fafefe; border:1.5px solid var(--borde); border-left:4px solid var(--cyan); border-radius:8px; padding:12px 14px; }
+.comentariosTexto { font-size:12px; color:var(--negro); line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+
+/* ── Firmas ── */
+.firmasGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.firmaCard  { border:1.5px solid var(--borde); border-radius:8px; overflow:hidden; min-width:0; }
+.firmaHeader { background:var(--negro); padding:5px 10px; font-size:8px; font-weight:700; color:var(--cyan); letter-spacing:1px; text-transform:uppercase; font-family:var(--font-mono); word-break:break-word; }
+.firmaImgArea { padding:8px; min-height:64px; display:flex; align-items:center; justify-content:center; background:var(--blanco); }
+.firmaImg     { max-height:64px; max-width:100%; }
+.firmaVacia   { color:var(--borde); font-size:10px; text-align:center; }
+.firmaPie     { border-top:1.5px solid var(--borde); padding:5px 10px; font-size:10px; color:var(--gris-medio); text-align:center; word-break:break-word; }
+
+/* ── QR ── */
+.qrArea   { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--gris-claro); border-top:2px solid var(--borde); flex-wrap:wrap; }
+.qrSvg    { flex-shrink:0; border-radius:6px; overflow:hidden; border:2px solid var(--borde); }
+.qrInfo   { flex:1; min-width:160px; }
+.qrTitulo { font-size:11px; font-weight:800; color:var(--negro); margin-bottom:3px; line-height:1.3; }
+.qrDesc   { font-size:10px; color:var(--gris-medio); line-height:1.5; }
+.qrHash   { font-family:var(--font-mono); font-size:8.5px; color:var(--cyan-dark); margin-top:4px; word-break:break-all; }
+.sello    { border:2.5px solid var(--cyan); border-radius:50%; width:64px; height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; text-align:center; }
+.sello span  { font-size:16px; }
+.sello small { font-size:7px; font-weight:800; color:var(--cyan); letter-spacing:.8px; text-transform:uppercase; line-height:1.4; font-family:var(--font-mono); }
+
+/* ── Pie de página ── */
+.pie        { background:var(--negro); display:grid; grid-template-columns:1fr 1px 1fr; align-items:stretch; }
+.pieDivider { background:rgba(78,205,196,.25); }
+.pieCol     { padding:12px 14px; display:flex; flex-direction:column; gap:5px; min-width:0; }
+.pieTitulo  { font-size:7.5px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); font-family:var(--font-mono); margin-bottom:3px; padding-bottom:5px; border-bottom:1px solid rgba(78,205,196,.2); }
+.pieFila    { display:flex; align-items:flex-start; gap:6px; min-width:0; }
+.pieIcono   { font-size:10px; flex-shrink:0; margin-top:1px; opacity:.8; }
+.pieTexto   { font-size:9.5px; color:rgba(255,255,255,.7); line-height:1.5; word-break:break-word; overflow-wrap:break-word; min-width:0; }
+.pieTexto strong { color:var(--blanco); font-weight:600; }
+.pieRfc     { font-family:var(--font-mono); font-size:9.5px; color:var(--cyan); font-weight:600; letter-spacing:.5px; }
+.pieBanda   { height:3px; background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan-dark) 40%,var(--negro) 100%); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET ≤ 600px
+═══════════════════════════════════════════════════════════════ */
+@media (max-width:600px) {
+  .encabezado { flex-direction:column; }
+  .logoArea   { flex-direction:row; justify-content:flex-start; padding:10px 14px; gap:12px; border-right:none; border-bottom:3px solid var(--cyan); width:100%; }
+  .logoImg    { width:52px; height:52px; }
+  .tituloArea { padding:0; flex:unset; }
+  .empresa    { font-size:15px; }
+  .subtitulo  { font-size:9px; letter-spacing:1.5px; }
+  .folioArea  { flex-direction:row; align-items:center; justify-content:space-between; border-left:none; border-top:1px solid rgba(255,255,255,.08); padding:8px 14px; width:100%; }
+  .folioLabel { display:none; }
+  .folioNum   { font-size:16px; }
+  .cuerpo     { padding:12px; gap:14px; }
+  .tabla      { table-layout:auto; }
+  .tdLabel    { width:35%; font-size:8px; padding:6px; }
+  td, th      { font-size:10px; padding:6px; }
+  .thCodigo   { width:60px; }
+  .firmasGrid { grid-template-columns:1fr; gap:10px; }
+  .qrArea     { padding:10px 12px; }
+  .qrTitulo   { font-size:10px; }
+  .qrDesc     { font-size:9px; }
+  .sello      { display:none; }
+  .pie        { grid-template-columns:1fr; }
+  .pieDivider { height:1px; width:100%; }
+  .pieCol     { padding:10px 12px; }
+  .pieTexto   { font-size:9px; }
+  .pieTitulo  { font-size:7px; }
+}
+
+@media (max-width:380px) {
+  .empresa  { font-size:13px; }
+  .folioNum { font-size:14px; }
+  td, th    { font-size:9.5px; padding:5px; }
+  .tdLabel  { width:38%; font-size:7.5px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FORZAR FONDOS — html2canvas PDF + print
+   Garantiza encabezado negro, pie oscuro y bandas cyan
+═══════════════════════════════════════════════════════════════ */
+.documento,
+.encabezado, .logoArea, .tituloArea, .folioArea,
+.banda, .bandaInferior,
+.cuerpo, .seccion, .secLabel,
+.tabla, .th, .td, .tdLabel, .trPar,
+.firmasGrid, .firmaCard, .firmaHeader, .firmaImgArea, .firmaPie,
+.comentariosBox, .comentariosTexto,
+.qrArea, .qrSvg, .sello,
+.pie, .pieCol, .pieDivider, .pieTitulo, .pieFila, .pieTexto, .pieBanda {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust:         exact !important;
+  color-adjust:               exact !important;
+}
+
+@media print {
+  .documento { box-shadow:none; overflow:visible; }
+  .sello     { display:flex !important; }
+}
