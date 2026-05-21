@@ -130,14 +130,14 @@ export function useOrdenes() {
     if (!acts.length) { alert('Agrega al menos una actividad.'); return }
     const tc      = getTipo(tipo)
     const refs    = tc.showRefacciones ? refacciones.filter(r=>r.codigo||r.nombre||r.motivo) : []
-    const payload = JSON.stringify({folio,tipo,responsable,razonSocial,direccion,horaInicio,horaFin,equipo,serie,fecha,ts:new Date().toISOString()})
+    const payload = `https://ordenes-servicio-labotec.netlify.app/verificar/${folio}`
     const { numero } = generarFolio(db.ultimoFolio)
     const ord = {
       id:Date.now().toString(), folio, tipo, fecha, fechaISO:new Date().toISOString(),
       responsable, razonSocial, direccion, horaInicio, horaFin, equipo, serie,
       actividades:acts, refacciones:refs, comentarios:comentarios.trim(),
       firmaResp:firmaRespURL, firmaIng:firmaIngURL,
-      qrPayload:payload, qrHash:`ID: ${folio} · ${hashSimple(payload)}`
+      qrPayload:payload, qrHash:`Verificar en: ${payload}`
     }
     // Limpiar borrador al generar exitosamente
     limpiarBorrador()

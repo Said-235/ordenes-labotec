@@ -1,18 +1,92 @@
-const FINDER = [
-  [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[0,1],[6,1],[0,2],[2,2],[3,2],[4,2],[6,2],[0,3],[2,3],[4,3],[6,3],[0,4],[2,4],[3,4],[4,4],[6,4],[0,5],[6,5],[0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],
-  [14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[14,1],[20,1],[14,2],[16,2],[17,2],[18,2],[20,2],[14,3],[16,3],[18,3],[20,3],[14,4],[16,4],[17,4],[18,4],[20,4],[14,5],[20,5],[14,6],[15,6],[16,6],[17,6],[18,6],[19,6],[20,6],
-  [0,14],[1,14],[2,14],[3,14],[4,14],[5,14],[6,14],[0,15],[6,15],[0,16],[2,16],[3,16],[4,16],[6,16],[0,17],[2,17],[4,17],[6,17],[0,18],[2,18],[3,18],[4,18],[6,18],[0,19],[6,19],[0,20],[1,20],[2,20],[3,20],[4,20],[5,20],[6,20],
-]
+// ─────────────────────────────────────────────────────────────
+//  QR — Generador real usando librería qrcode via CDN
+//
+//  Genera un canvas con el QR real y lo devuelve como
+//  data URL PNG para incrustar en el documento imprimible.
+//
+//  La librería se carga dinámicamente la primera vez que
+//  se usa — sin instalar nada, igual que hace usePDF.
+// ─────────────────────────────────────────────────────────────
 
-export function generarQrSVG(texto, size = 100, color = '#111111') {
-  const seed = texto.split('').reduce((a,c) => a + c.charCodeAt(0), 0)
-  const rng  = (i) => ((seed * 1103515245 + i * 12345) >>> 0) % 2
-  const N = 21, cell = size / N
-  const cs = new Set(FINDER.map(([x,y]) => `${x},${y}`))
-  let rects = ''
-  for (let y=0;y<N;y++) for (let x=0;x<N;x++) {
-    const f = cs.has(`${x},${y}`) || (x>=8&&y>=8&&rng(x*31+y*17+seed%13)===1) || (x>7&&x<13&&y>7&&y<13&&rng(x*21+y+seed%7)===1)
-    if (f) rects += `<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="${color}"/>`
+function cargarQRLib() {
+  return new Promise((resolve, reject) => {
+    if (window.QRCode) { resolve(window.QRCode); return }
+    const s   = document.createElement('script')
+    s.src     = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+    s.onload  = () => resolve(window.QRCode)
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
+/**
+ * Genera un QR real como imagen PNG (data URL).
+ * Usa qrcodejs via CDN — escaneable con cualquier lector.
+ *
+ * @param {string} url   - URL de verificación a codificar
+ * @param {number} size  - Tamaño en px (default 128)
+ * @returns {Promise<string>} - data URL de la imagen PNG
+ */
+export async function generarQrDataURL(url, size = 128) {
+  try {
+    const QRCode = await cargarQRLib()
+
+    // Crear contenedor temporal oculto
+    const div = document.createElement('div')
+    div.style.cssText = 'position:fixed;top:-9999px;left:-9999px;'
+    document.body.appendChild(div)
+
+    // Generar QR en el div
+    const qr = new QRCode(div, {
+      text:           url,
+      width:          size,
+      height:         size,
+      colorDark:      '#111111',
+      colorLight:     '#f4f4f4',
+      correctLevel:   QRCode.CorrectLevel.M,
+    })
+
+    // Esperar a que el canvas se renderice
+    await new Promise(r => setTimeout(r, 100))
+
+    // Extraer la imagen del canvas generado
+    const canvas  = div.querySelector('canvas')
+    const dataURL = canvas ? canvas.toDataURL('image/png') : null
+
+    // Limpiar
+    document.body.removeChild(div)
+
+    return dataURL
+  } catch (err) {
+    console.error('[qr] Error generando QR:', err)
+    return null
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#f4f4f4"/>${rects}</svg>`
+}
+
+/**
+ * SVG decorativo de respaldo — se muestra mientras carga
+ * el QR real o si la librería no está disponible.
+ * NO es escaneable — solo visual.
+ */
+export function generarQrPlaceholderSVG(size = 100) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <rect width="${size}" height="${size}" fill="#f4f4f4"/>
+    <rect x="8"  y="8"  width="28" height="28" fill="none" stroke="#111" stroke-width="3.5"/>
+    <rect x="14" y="14" width="16" height="16" fill="#111"/>
+    <rect x="64" y="8"  width="28" height="28" fill="none" stroke="#111" stroke-width="3.5"/>
+    <rect x="70" y="14" width="16" height="16" fill="#111"/>
+    <rect x="8"  y="64" width="28" height="28" fill="none" stroke="#111" stroke-width="3.5"/>
+    <rect x="14" y="70" width="16" height="16" fill="#111"/>
+    <rect x="40" y="10" width="4"  height="4"  fill="#111"/>
+    <rect x="48" y="10" width="4"  height="4"  fill="#111"/>
+    <rect x="44" y="18" width="8"  height="4"  fill="#111"/>
+    <rect x="40" y="40" width="4"  height="4"  fill="#111"/>
+    <rect x="48" y="40" width="8"  height="8"  fill="#111"/>
+    <rect x="60" y="44" width="4"  height="4"  fill="#111"/>
+    <rect x="40" y="56" width="8"  height="4"  fill="#111"/>
+    <rect x="60" y="56" width="4"  height="8"  fill="#111"/>
+    <rect x="72" y="40" width="4"  height="4"  fill="#111"/>
+    <rect x="80" y="44" width="4"  height="8"  fill="#111"/>
+    <rect x="72" y="56" width="8"  height="4"  fill="#111"/>
+  </svg>`
 }

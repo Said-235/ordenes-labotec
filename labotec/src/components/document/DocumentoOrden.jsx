@@ -1,24 +1,39 @@
-import LOGO             from '@/assets/logo.jpg'
-import { generarQrSVG } from '@/utils/qr'
-import { C, getTipo }   from '@/config/marca'
-import styles            from './DocumentoOrden.module.css'
+import { useState, useEffect }  from 'react'
+import LOGO                       from '@/assets/logo.jpg'
+import { generarQrDataURL,
+         generarQrPlaceholderSVG } from '@/utils/qr'
+import { C, getTipo }              from '@/config/marca'
+import styles                      from './DocumentoOrden.module.css'
+
+// ─────────────────────────────────────────────────────────────
+//  DOCUMENTO IMPRIMIBLE
+// ─────────────────────────────────────────────────────────────
 
 export default function DocumentoOrden({ ord }) {
   const tipoConfig = getTipo(ord.tipo)
-  const qr         = generarQrSVG(ord.qrPayload || ord.folio, 96, C.negro)
+  const [qrImg, setQrImg] = useState(null)   // data URL del QR real
+
+  // Generar QR real en cuanto tengamos la URL
+  useEffect(() => {
+    if (!ord.qrPayload) return
+    generarQrDataURL(ord.qrPayload, 128).then(url => {
+      if (url) setQrImg(url)
+    })
+  }, [ord.qrPayload])
+
   return (
     <div className={styles.documento} id="documento-orden-pdf">
       <Encabezado ord={ord} tipoConfig={tipoConfig} />
       <div className={styles.banda} />
       <div className={styles.cuerpo}>
-        <InfoGeneral ord={ord} />
-        <Actividades ord={ord} />
+        <InfoGeneral  ord={ord} />
+        <Actividades  ord={ord} />
         {tipoConfig.showRefacciones && <Refacciones ord={ord} />}
         {ord.comentarios && <Comentarios ord={ord} />}
-        <Firmas ord={ord} />
+        <Firmas       ord={ord} />
       </div>
       <div className={styles.bandaInferior} />
-      <QrValidacion ord={ord} qr={qr} />
+      <QrValidacion ord={ord} qrImg={qrImg} />
       <PieContacto />
       <div className={styles.pieBanda} />
     </div>
@@ -94,7 +109,12 @@ function Actividades({ ord }) {
       <SecLabel>Actividades Realizadas</SecLabel>
       <div className={styles.tablaWrap}>
         <table className={styles.tabla}>
-          <thead><tr><th className={`${styles.th} ${styles.thNum}`}>#</th><th className={styles.th}>Descripción de la Actividad</th></tr></thead>
+          <thead>
+            <tr>
+              <th className={`${styles.th} ${styles.thNum}`}>#</th>
+              <th className={styles.th}>Descripción de la Actividad</th>
+            </tr>
+          </thead>
           <tbody>
             {ord.actividades.map((a,i) => (
               <tr key={i} className={i%2?styles.trPar:''}>
@@ -115,7 +135,14 @@ function Refacciones({ ord }) {
       <SecLabel>Refacciones Utilizadas</SecLabel>
       <div className={styles.tablaWrap}>
         <table className={styles.tabla}>
-          <thead><tr><th className={`${styles.th} ${styles.thNum}`}>#</th><th className={`${styles.th} ${styles.thCodigo}`}>Código</th><th className={styles.th}>Nombre de Refacción</th><th className={styles.th}>Motivo de Utilización</th></tr></thead>
+          <thead>
+            <tr>
+              <th className={`${styles.th} ${styles.thNum}`}>#</th>
+              <th className={`${styles.th} ${styles.thCodigo}`}>Código</th>
+              <th className={styles.th}>Nombre de Refacción</th>
+              <th className={styles.th}>Motivo de Utilización</th>
+            </tr>
+          </thead>
           <tbody>
             {!ord.refacciones||ord.refacciones.length===0 ? (
               <tr><td colSpan={4} className={styles.tdVacio}>No se utilizaron refacciones en este servicio.</td></tr>
@@ -148,11 +175,17 @@ function Comentarios({ ord }) {
 function Firmas({ ord }) {
   return (
     <div className={styles.firmasGrid}>
-      {[{label:'Responsable de Laboratorio',img:ord.firmaResp,pie:ord.responsable},{label:'Ingeniero de Servicio',img:ord.firmaIng,pie:'Ingeniero Autorizado'}].map(({label,img,pie}) => (
+      {[
+        {label:'Responsable de Laboratorio', img:ord.firmaResp, pie:ord.responsable},
+        {label:'Ingeniero de Servicio',      img:ord.firmaIng,  pie:'Ingeniero Autorizado'},
+      ].map(({label,img,pie}) => (
         <div key={label} className={styles.firmaCard}>
           <div className={styles.firmaHeader}>{label}</div>
           <div className={styles.firmaImgArea}>
-            {img ? <img src={img} className={styles.firmaImg} alt="firma"/> : <span className={styles.firmaVacia}>Sin firma capturada</span>}
+            {img
+              ? <img src={img} className={styles.firmaImg} alt="firma" />
+              : <span className={styles.firmaVacia}>Sin firma capturada</span>
+            }
           </div>
           <div className={styles.firmaPie}>{pie}</div>
         </div>
@@ -161,20 +194,37 @@ function Firmas({ ord }) {
   )
 }
 
-function QrValidacion({ ord, qr }) {
+// ── QR Real ──────────────────────────────────────────────────
+function QrValidacion({ ord, qrImg }) {
   return (
     <div className={styles.qrArea}>
-      <div className={styles.qrSvg} dangerouslySetInnerHTML={{__html:qr}} />
+
+      {/* QR real (imagen PNG) o placeholder SVG mientras carga */}
+      <div className={styles.qrSvg}>
+        {qrImg
+          ? <img src={qrImg} width={96} height={96} alt="QR de verificación" style={{display:'block',borderRadius:4}} />
+          : <div dangerouslySetInnerHTML={{__html: generarQrPlaceholderSVG(96)}} />
+        }
+      </div>
+
       <div className={styles.qrInfo}>
         <p className={styles.qrTitulo}>✅ Servicio Oficial Verificado · LABOTEC Engineering</p>
-        <p className={styles.qrDesc}>Escanea este QR para confirmar que el servicio fue realizado por técnicos certificados de LABOTEC.</p>
+        <p className={styles.qrDesc}>
+          Escanea este código QR para confirmar que el servicio fue realizado
+          por técnicos certificados de LABOTEC.
+        </p>
         <p className={styles.qrHash}>{ord.qrHash}</p>
       </div>
-      <div className={styles.sello}><span>✔</span><small>Servicio<br/>Oficial<br/>Labotec</small></div>
+
+      <div className={styles.sello}>
+        <span>✔</span>
+        <small>Servicio<br/>Oficial<br/>Labotec</small>
+      </div>
     </div>
   )
 }
 
+// ── Pie de página ────────────────────────────────────────────
 function PieContacto() {
   return (
     <div className={styles.pie}>
