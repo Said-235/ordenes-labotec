@@ -205,13 +205,22 @@ export function useOrdenes() {
     }
   }
 
-  const sugerencias = useMemo(() => ({
-    responsable: unicos(db.ordenes, 'responsable'),
-    razonSocial: unicos(db.ordenes, 'razonSocial'),
-    direccion:   unicos(db.ordenes, 'direccion'),
-    equipo:      unicos(db.ordenes, 'equipo'),
-    serie:       unicos(db.ordenes, 'serie'),
-  }), [db.ordenes])
+  const sugerencias = useMemo(() => {
+    const porResponsable = {}
+    for (const o of db.ordenes) {
+      const nombre = typeof o.responsable === 'string' ? o.responsable.trim() : ''
+      if (!nombre || porResponsable[nombre]) continue
+      porResponsable[nombre] = {
+        razonSocial: o.razonSocial || '',
+        direccion: o.direccion || '',
+      }
+    }
+    return {
+      responsable: unicos(db.ordenes, 'responsable'),
+      porResponsable,
+      equipo: unicos(db.ordenes, 'equipo'),
+    }
+  }, [db.ordenes])
 
   const pendientes = db.ordenes.filter(o => o.pending).length
 

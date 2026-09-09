@@ -24,6 +24,14 @@ export default function Formulario({ ctx }) {
     generar(fR, fI)
   }
 
+  function onResponsable(nombre) {
+    setResponsable(nombre)
+    const match = sugerencias.porResponsable?.[nombre.trim()]
+    if (!match) return
+    setRazonSocial(match.razonSocial)
+    setDireccion(match.direccion)
+  }
+
   return (
     <div className={styles.page}>
       <NavBar back={() => setPantalla('inicio')} backLabel="← Inicio"
@@ -44,16 +52,24 @@ export default function Formulario({ ctx }) {
           </div>
           <CampoSuggest
             listId="sug-responsable" label="Responsable de laboratorio *"
-            placeholder="Nombre completo" value={responsable} onChange={setResponsable}
+            placeholder="Nombre completo" value={responsable} onChange={onResponsable}
             options={sugerencias.responsable} />
-          <CampoSuggest
-            listId="sug-razon" label="Razón social del cliente *"
-            placeholder="Empresa o institución" value={razonSocial} onChange={setRazonSocial}
-            options={sugerencias.razonSocial} />
-          <CampoSuggest
-            listId="sug-direccion" label="Dirección donde se realizó el servicio *"
-            placeholder="Calle, número, colonia, ciudad" value={direccion} onChange={setDireccion}
-            options={sugerencias.direccion} />
+          <Campo label="Razón social del cliente *">
+            <input
+              className={styles.input}
+              placeholder="Empresa o institución"
+              value={razonSocial}
+              onChange={e => setRazonSocial(e.target.value)}
+            />
+          </Campo>
+          <Campo label="Dirección donde se realizó el servicio *">
+            <input
+              className={styles.input}
+              placeholder="Calle, número, colonia, ciudad"
+              value={direccion}
+              onChange={e => setDireccion(e.target.value)}
+            />
+          </Campo>
           <div className={styles.grid2}>
             <CampoHora label="Hora de inicio *" value={horaInicio} onChange={setHoraInicio} />
             <CampoHora label="Hora de término *" value={horaFin} onChange={setHoraFin} />
@@ -66,10 +82,14 @@ export default function Formulario({ ctx }) {
             listId="sug-equipo" label="Equipo con servicio *"
             placeholder="Nombre y modelo del equipo" value={equipo} onChange={setEquipo}
             options={sugerencias.equipo} />
-          <CampoSuggest
-            listId="sug-serie" label="Número de serie *"
-            placeholder="S/N · Número de serie" value={serie} onChange={setSerie}
-            options={sugerencias.serie} />
+          <Campo label="Número de serie *">
+            <input
+              className={styles.input}
+              placeholder="S/N · Número de serie"
+              value={serie}
+              onChange={e => setSerie(e.target.value)}
+            />
+          </Campo>
         </section>
 
         <section className={styles.seccion}>
