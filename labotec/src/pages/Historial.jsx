@@ -2,6 +2,7 @@ import NavBar       from '@/components/layout/NavBar'
 import Buscador      from '@/components/historial/Buscador'
 import CardOrden     from '@/components/historial/CardOrden'
 import ModalEliminar from '@/components/common/ModalEliminar'
+import BannerPendientes from '@/components/common/BannerPendientes'
 import styles         from './Historial.module.css'
 
 export default function Historial({ ctx }) {
@@ -12,6 +13,7 @@ export default function Historial({ ctx }) {
       <NavBar back={()=>setPantalla('inicio')} backLabel="← Inicio"
         extra={<button className={styles.btnNueva} onClick={()=>iniciar('preventivo')}>+ Nueva orden</button>} />
       <div className={styles.body}>
+        <BannerPendientes ctx={ctx} />
         <Buscador busqueda={busqueda} setBusqueda={setBusqueda} filtroTipo={filtroTipo} setFiltroTipo={setFiltroTipo} total={ordenesFiltradas.length} />
         {ordenesFiltradas.length===0 ? (
           <div className={styles.empty}>

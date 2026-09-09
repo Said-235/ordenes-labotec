@@ -56,7 +56,7 @@ function Encabezado({ ord, tipoConfig }) {
       </div>
       <div className={styles.folioArea}>
         <span className={styles.folioLabel}>No. de Orden</span>
-        <span className={styles.folioNum}>{ord.folio}</span>
+        <span className={styles.folioNum}>{ord.pending ? 'PENDIENTE' : ord.folio}</span>
         <span className={styles.folioFecha}>{ord.fecha}</span>
       </div>
     </div>
@@ -196,6 +196,19 @@ function Firmas({ ord }) {
 
 // ── QR Real ──────────────────────────────────────────────────
 function QrValidacion({ ord, qrImg }) {
+  if (ord.pending) {
+    return (
+      <div className={styles.qrArea}>
+        <div className={styles.qrInfo}>
+          <p className={styles.qrTitulo}>Pendiente de sincronizar</p>
+          <p className={styles.qrDesc}>
+            El folio oficial y el QR de verificación se asignan al subir la orden a la base.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.qrArea}>
 

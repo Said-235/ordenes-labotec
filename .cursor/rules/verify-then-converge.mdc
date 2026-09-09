@@ -1,0 +1,84 @@
+---
+description: Always-on. The verify-then-converge loop. After completing substantial work (feature / security / config / removal / upgrade — committed, or uncommitted in read-only mode) and before opening a PR, run the AI-review loop — and treat EVERY reviewer finding, tool exit code, subagent "all clean", and remembered fact as a hypothesis to verify against ground truth, not a directive. Fix valid findings minimally; skip the rest with written evidence; validate; commit per pass (or record the pass in read-only mode when commits aren't authorized); converge on justified residue. NOT for one-line copy/lint tweaks.
+globs:
+alwaysApply: true
+---
+
+# Verify-then-Converge — the loop we run to keep changes on track
+
+**The primitive:** *generate claims → give each a verdict against an authoritative source →
+record the evidence → converge on "only justified residue."* Code review (an AI reviewer's
+CLI or PR bot) is the most common instance; the same discipline governs a "gate is green"
+claim, a subagent's "all fixed", the issue's own requirements, and your own "this is fine".
+The reviewer is a **hypothesis generator, not an oracle** — its recall is trustworthy only
+inside the diff-visible, single-subsystem, statically-analyzable slice. Outside it, *you*
+supply recall: front-load adversarially and drive the real thing.
+
+Depth lives in two documents under `.context/patterns/`:
+[`verify-then-converge-core.md`](../../.context/patterns/verify-then-converge-core.md)
+(the org doctrine — kit-managed, upgraded by `ai-workflow-scaffold`) and
+[`verify-then-converge-playbook.md`](../../.context/patterns/verify-then-converge-playbook.md)
+(THIS repo's specifics — its adjudication heuristics, stack taxonomy, reviewer policy,
+incidents). The pasted-comment triage flow is the overlay:
+[`code-review.mdc`](code-review.mdc).
+
+## When this fires
+
+After completing **substantial** work — a feature, anything security- or contract-shaped, a
+dependency upgrade, a removal; committed, or complete-but-uncommitted when commits aren't
+authorized (read-only mode) — and **before** opening or updating the PR. Not for one-line
+copy or lint tweaks. When the user pastes reviewer comments or says "attend the review",
+this loop (with [`code-review.mdc`](code-review.mdc) as the triage format) is the process —
+never freestyle it from memory.
+
+## The loop
+
+1. **Commit first — under the user's explicit ask.** The loop runs on the user's request,
+   and that ask covers its work and per-pass commits; **absent it, run read-only**: review
+   the working tree as it stands and record each pass per the core doctrine's read-only
+   record, committing nothing. When committing: branch `<type>/<slug>` off
+   **`main`**, never the trunk; branch-guard before every commit, stage explicit
+   paths (never `git add -A`), and make every writing git command assert its branch AND
+   directory in the same chained invocation. Warm the signing/push credentials up front,
+   while the human is present.
+2. **Preflight the reviewer.** Consent: standing = the reviewer's config committed on the
+   **base branch**, or the review App demonstrably reviewing every PR; otherwise ask once.
+   Consent and *activation* are orthogonal — read the config, don't just detect it.
+   Secrets-scan the payload the reviewer will actually receive.
+   No hay config de CodeRabbit/Copilot Reviewer commiteada ni App de review en el repo. El pass por defecto es el loop in-house (esta regla + [code-review.mdc](code-review.mdc)). Un bot externo necesita decisión explícita del equipo.
+3. **Scope to the unreviewed range**, never the whole branch — find prior review-pass
+   commits first; do not re-adjudicate settled findings.
+4. **Verify every finding against ground truth, then verdict** — **Apply / Modify / Skip /
+   Refute / Escalate**, one evidence line each. Prefer executing something over reading
+   harder. Severity orders attention; it never assigns trust. A skip rationale is a claim
+   and gets the same standard as a finding.
+5. **Fix minimally; fix the class, not the instance** — enumerate every site of the class,
+   in every path, before declaring it closed.
+6. **Validate honestly** — run this repo's gate, know what it does NOT check, and cover
+   that too. Behavioral bugs get a regression test that provably fails on revert.
+   Gate: `npm run build` (Vite). **No hay tests.** El build no cubre Supabase, RLS, ni flujos de UI. Verificar a mano `dev` + persistencia si el cambio toca órdenes.
+7. **Record every pass.** When commits are authorized (step 1): one commit per pass — the
+   full verdict tally in the subject (fixed incl. modified / skipped / refuted / escalated),
+   one evidence line per non-Apply verdict in the body, a `Review-Pass:` trailer; zero-fix
+   passes get `--allow-empty`. In **read-only mode**: no commit, no trailer — write the core
+   doctrine's read-only record instead (content fingerprint, the same full tally, the same
+   evidence lines). Either way, **never bump the version in a review pass** — releasing is a
+   separate, developer-triggered ritual.
+8. **Converge by finding class, not count.** Stop at trivial residue or evidence-backed
+   skips; the PR bot is the free confirming pass; **never self-merge**, and never commit
+   after the bot's approval.
+
+## Non-negotiables
+
+- **Exit codes lie through pipes** — capture the reviewer's `$?` before any filter touches
+  the stream; output missing the tool's own scope header is a FAILURE, never "clean".
+- **The confirming pass audits your previous pass, not the reviewer** — the apply commit is
+  unreviewed code written under momentum.
+- **"Cosmetic", "out-of-scope", and "pre-existing" are the three dangerous skip words** —
+  the third has a test: did this PR materially change the code hosting the finding?
+- **Relaxing a gate or invariant → grep every downstream consumer** of what it guaranteed.
+- **OpenSpec/spec artifacts are review surface** — adjudicate on "implementable + preserves
+  the artifact's purpose", and the issue itself is also a hypothesis.
+- **No PII/secret literals in planning artifacts** — describe the smell, never quote it.
+- After a loop that touched docs, emit the `## Context-Update Assessment`
+  ([`context-maintenance.mdc`](context-maintenance.mdc)) — never silently update the hubs.

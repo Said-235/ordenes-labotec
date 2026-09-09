@@ -1,0 +1,231 @@
+{
+  "kitVersion": "1.1.0",
+  "manifestVersion": 1,
+  "createdAt": "2026-09-09T19:08:09.358Z",
+  "updatedAt": "2026-09-09T19:08:09.358Z",
+  "selection": {
+    "stack": null,
+    "modules": [
+      "openspec"
+    ],
+    "tools": [
+      "cursor"
+    ]
+  },
+  "tokens": {
+    "PROJECT_DESCRIPTION": "Sistema de Órdenes de Servicio — LABOTEC Engineering Services",
+    "PROJECT_STACK": "Vite 5 + React 18 SPA (npm workspaces)",
+    "PROJECT_LANGUAGES": "JavaScript, JSX",
+    "PROJECT_VERSION": "1.1.0",
+    "MAINTAINERS": "",
+    "BASE_BRANCH": "main",
+    "TODAY": "2026-09-09",
+    "MEMORY_ROOT": ".context",
+    "ADR_MODE": "folder",
+    "HUB": "architecture",
+    "PACKAGE_MANAGER": "npm",
+    "NODE_VERSION": ">=20",
+    "PROJECT_NAME": "LABOTEC Órdenes de Servicio",
+    "PROJECT_SLUG": "ordenes-labotec"
+  },
+  "files": {
+    "ARCHITECTURE.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "399670ec737d3b9a3f9ef7bb84395f4129e5efabb5b2710af86ef518e9f6d9fd",
+      "installedSha": "e036fb6fbfff23bb0aa0c90d295e2fc8bb6e25d01d355eea24351a8663e11d38"
+    },
+    "AGENTS.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "af1c5d22b49079866e9ab852b7e6658cda900f74561d18f9884d40f056445bad",
+      "installedSha": "5592c1d0ac365ef166c20c0921d6201b81eaed7e4e33c5c7377fa80ff9e5276d"
+    },
+    "CLAUDE.md": {
+      "kind": "wired",
+      "layer": "core",
+      "kitSha": "3692f89b555fb1082b97f23b66032cc7908f1377fe14673a8b47b04a14fc5d02",
+      "installedSha": "a4be490eb5470e3a46fe9df296c71105c66da3a21e087340e573dba9395b6152"
+    },
+    "CHANGELOG.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "c65fb5e2260b8ccc0aee2715c4ae90d213615f95281682fb0f89799bc954eeae",
+      "installedSha": "c65fb5e2260b8ccc0aee2715c4ae90d213615f95281682fb0f89799bc954eeae"
+    },
+    "SCAFFOLD-README-SECTION.md": {
+      "kind": "snippet",
+      "layer": "core",
+      "kitSha": "474defb9615d98c19ac3b767a944b7e02a53b1c8945a40b30c33354796b68cd8",
+      "installedSha": "25df527780f661f04a67413541ea13930783cdddc07975eb0466cb71d3235046"
+    },
+    ".cursor/rules/ordenes-labotec-architecture.mdc": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "2b49051106b6573da741e5faff3a53a15c5aebf70e42eaed0ea1dd5c3d49d9f6",
+      "installedSha": "a188aab73e2c660da826cd550972a50ee32054c135ec5b77dfc3e14fd459f571"
+    },
+    ".cursor/rules/context-maintenance.mdc": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "a947f6dad461abdfd0b80f40785ea7477ac11913b9dbd649f4d980fc02a734d4",
+      "installedSha": "a947f6dad461abdfd0b80f40785ea7477ac11913b9dbd649f4d980fc02a734d4"
+    },
+    ".cursor/rules/git-workflow.mdc": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "0fff7ffbbdc97c36772de41c43899d4d1436a4eb039d9f378802222e3e789126",
+      "installedSha": "0fff7ffbbdc97c36772de41c43899d4d1436a4eb039d9f378802222e3e789126"
+    },
+    ".cursor/rules/verify-then-converge.mdc": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "505e0f67e9ff35d98b3f9b7212b270c03b106aafc5a1ab39a71b23105fc0b3e7",
+      "installedSha": "505e0f67e9ff35d98b3f9b7212b270c03b106aafc5a1ab39a71b23105fc0b3e7"
+    },
+    ".cursor/rules/code-review.mdc": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "a24ec85c274ed400893532a4f8d3b6e53631cbfcd8419bf5be3c4828a381bae3",
+      "installedSha": "a24ec85c274ed400893532a4f8d3b6e53631cbfcd8419bf5be3c4828a381bae3"
+    },
+    ".cursor/rules/core-workflow.mdc": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "8703e544f2723c7a0dfdf5a9c22d9d0cd1d0992a42348dc5142a8f43be7a326d",
+      "installedSha": "8703e544f2723c7a0dfdf5a9c22d9d0cd1d0992a42348dc5142a8f43be7a326d"
+    },
+    ".context/constraints.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "4b1c48463e8ded426b7571dcc1cd0b7a855d912b3b8c8487e4dcc89ec28699ce",
+      "installedSha": "4b1c48463e8ded426b7571dcc1cd0b7a855d912b3b8c8487e4dcc89ec28699ce"
+    },
+    ".context/history.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "aac3d8ca1da19bf3a0bd8c1f63fdf326478cf385099db6ca796cfc64f41cee88",
+      "installedSha": "aac3d8ca1da19bf3a0bd8c1f63fdf326478cf385099db6ca796cfc64f41cee88"
+    },
+    ".context/last_reviewed.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "1904a52e95d5307812ded6b768575bb0cc19de9bdf9bdedf7eede6a61c1afbd2",
+      "installedSha": "1904a52e95d5307812ded6b768575bb0cc19de9bdf9bdedf7eede6a61c1afbd2"
+    },
+    ".context/vision/project-vision.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "91f3a59a155d6fd54f8c48eee9cfca96dc91ea94603ed5782393f5875b05e5c8",
+      "installedSha": "91f3a59a155d6fd54f8c48eee9cfca96dc91ea94603ed5782393f5875b05e5c8"
+    },
+    ".context/decisions/README.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "418e95c6c51fae1e1f06fdcce23798f7aca240b13879b8545d50e13e96a10ef5",
+      "installedSha": "418e95c6c51fae1e1f06fdcce23798f7aca240b13879b8545d50e13e96a10ef5"
+    },
+    ".context/decisions/0000-template.md": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "dd3ff20ba8048c8d00e576afb922cb13a9a711f631fae6da3fb1888c384554df",
+      "installedSha": "dd3ff20ba8048c8d00e576afb922cb13a9a711f631fae6da3fb1888c384554df"
+    },
+    ".context/patterns/README.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "9d600c59e09f231bc222310e174f1633f079f77ee185a3fd2cbc5ea3228b2413",
+      "installedSha": "9d600c59e09f231bc222310e174f1633f079f77ee185a3fd2cbc5ea3228b2413"
+    },
+    ".context/patterns/verify-then-converge-core.md": {
+      "kind": "boilerplate",
+      "layer": "core",
+      "kitSha": "8c223c41454cfd36a05fd57d78a35ecaee097954b2bf255a8ae1840d469080ab",
+      "installedSha": "8c223c41454cfd36a05fd57d78a35ecaee097954b2bf255a8ae1840d469080ab"
+    },
+    ".context/patterns/verify-then-converge-playbook.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "8b1ec0a3fd5740ea59c40e8f2fd123a062414ffe7b48227005f506b43208c394",
+      "installedSha": "8b1ec0a3fd5740ea59c40e8f2fd123a062414ffe7b48227005f506b43208c394"
+    },
+    ".context/agents/README.md": {
+      "kind": "instance",
+      "layer": "core",
+      "kitSha": "aecae7861c154ac1bfd12b539da91352a57efdcd41a9bfb4675a948e37e8036f",
+      "installedSha": "46091825547285d817722307c79a0e09d86e44012389908d1362e1bd79d9e214"
+    },
+    "openspec/project.md": {
+      "kind": "instance",
+      "layer": "module:openspec",
+      "kitSha": "5cb1179c6df7eea67cf74e561175d32e75bf416438b9db716ede60cbc6392549",
+      "installedSha": "5cb1179c6df7eea67cf74e561175d32e75bf416438b9db716ede60cbc6392549"
+    },
+    ".context/agents/openspec-workflow.md": {
+      "kind": "boilerplate",
+      "layer": "module:openspec",
+      "kitSha": "f87fd392236134e50bc67e2312037880f60a7d0dec65c9d90a18556a3f51b72f",
+      "installedSha": "f87fd392236134e50bc67e2312037880f60a7d0dec65c9d90a18556a3f51b72f"
+    },
+    ".cursor/commands/opsx-apply.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "3158fdc409ecc00cc2e16e0a683546984b87db793e63f6ac22936c773537c8f2",
+      "installedSha": "3158fdc409ecc00cc2e16e0a683546984b87db793e63f6ac22936c773537c8f2"
+    },
+    ".cursor/commands/opsx-archive.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "70bc862eacf381b65f40091c2de6dbe2bf03df6da2669bb94ff41fa8c9583fc5",
+      "installedSha": "70bc862eacf381b65f40091c2de6dbe2bf03df6da2669bb94ff41fa8c9583fc5"
+    },
+    ".cursor/commands/opsx-explore.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "1dd713e92f49cdaf9354689484f95430e98eb69c4bb51c9d80eafecebf9f75a0",
+      "installedSha": "1dd713e92f49cdaf9354689484f95430e98eb69c4bb51c9d80eafecebf9f75a0"
+    },
+    ".cursor/commands/opsx-propose.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "a2c2b0636f42cf37d786eba817c77893bb4d6c62753b98ee1f4a32ff2d3f3b16",
+      "installedSha": "a2c2b0636f42cf37d786eba817c77893bb4d6c62753b98ee1f4a32ff2d3f3b16"
+    },
+    ".cursor/commands/opsx-sync.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "e41f5b2ff4002cfd9c572e2ad2446d0ff2c3d284c6ebc7e911d479c29f9c9dca",
+      "installedSha": "e41f5b2ff4002cfd9c572e2ad2446d0ff2c3d284c6ebc7e911d479c29f9c9dca"
+    },
+    ".cursor/skills/openspec-apply-change/SKILL.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "da3d97f3ea482cca969981a2079ce7f906ccb4a892728f07bf72f354035d951a",
+      "installedSha": "da3d97f3ea482cca969981a2079ce7f906ccb4a892728f07bf72f354035d951a"
+    },
+    ".cursor/skills/openspec-archive-change/SKILL.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "0526054ec891a8a0c0cd0e19a285f285aa111112f2480a3ab365f9bba18a2b9c",
+      "installedSha": "0526054ec891a8a0c0cd0e19a285f285aa111112f2480a3ab365f9bba18a2b9c"
+    },
+    ".cursor/skills/openspec-explore/SKILL.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "fb359559d93095c81a57760c7739ffbd6d618a03d1810503515f8ae2b5054cd0",
+      "installedSha": "fb359559d93095c81a57760c7739ffbd6d618a03d1810503515f8ae2b5054cd0"
+    },
+    ".cursor/skills/openspec-propose/SKILL.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "ead4a7b7077ff08607b883ce045b31de3d78189432846c58ae80675eeac5033b",
+      "installedSha": "ead4a7b7077ff08607b883ce045b31de3d78189432846c58ae80675eeac5033b"
+    },
+    ".cursor/skills/openspec-sync-specs/SKILL.md": {
+      "kind": "boilerplate",
+      "layer": null,
+      "kitSha": "9c74dad096467f982806ccf33e213f459890e0b79af1f69f6e9f1e790bb2fccf",
+      "installedSha": "9c74dad096467f982806ccf33e213f459890e0b79af1f69f6e9f1e790bb2fccf"
+    }
+  }
+}

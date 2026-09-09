@@ -1,5 +1,6 @@
 import LOGO from '@/assets/logo.jpg'
 import BannerBorrador from '@/components/common/BannerBorrador'
+import BannerPendientes from '@/components/common/BannerPendientes'
 import { MARCA, TIPOS_ORDEN } from '@/config/marca'
 import styles from './Inicio.module.css'
 
@@ -18,6 +19,7 @@ export default function Inicio({ ctx }) {
       <h1 className={styles.nombre}>{MARCA.nombre}</h1>
       <p className={styles.sub}>{MARCA.subtitulo}</p>
       <p className={styles.version}>Sistema de Órdenes de Servicio · {MARCA.version}</p>
+      <BannerPendientes ctx={ctx} />
       <BannerBorrador ctx={ctx} />
       <div className={styles.stats}>
         {stats.map(({n,l}) => (

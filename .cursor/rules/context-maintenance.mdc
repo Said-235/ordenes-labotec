@@ -1,0 +1,108 @@
+---
+description: When and how to update project documentation, and the end-of-turn Context-Update Assessment gate every code-changing session must emit. Always on.
+globs:
+alwaysApply: true
+---
+
+# Context Maintenance & Documentation Orchestration
+
+Project documentation is **AI-first**: it should let agents implement features and navigate this codebase with minimal back-and-forth. This rule governs **when** to touch docs, **where** they live, **how** to avoid churn on trivial edits, and the **assessment gate** every code-changing session must emit before ending its turn.
+
+## Core policy
+
+- **Do not silently update project documentation** ([ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md), `.context/**`, `.cursor/rules/**`, `CHANGELOG.md` `[Unreleased]`, [README.md](../../README.md)) unless the user asked, or you **explicitly asked** and they approved.
+- After substantial work (see rubric), **prompt the user once** with a short, specific list of files to update. If the work was not substantial, don't bring docs up.
+- **Prefer** updating an existing pattern doc or ADR over duplicating a fact into the always-on architecture rule — that rule is a **map**, not a second copy of every feature.
+- **Never bump versions or cut a release** as part of doc maintenance — that is developer-triggered only.
+
+## Trigger
+
+Applies to any session that modifies tracked files in source, app entry points, `.cursor/`, native/config, or root config. Read-only sessions (questions, code review, exploration) are exempt.
+
+## Required output before end of turn
+
+Emit this block verbatim, replacing placeholders. Every row is either a concrete change summary or `N/A — <one-line reason>`.
+
+```
+## Context-Update Assessment
+
+- .context/history.md — <change summary OR N/A — reason>
+- .context/decisions/ — <new/superseded ADR OR N/A — reason>
+- .context/constraints.md — <change summary OR N/A — reason>
+- ARCHITECTURE.md / AGENTS.md — <change summary OR N/A — reason>
+- CHANGELOG.md [Unreleased] — <bullet added OR N/A — reason>
+- .context/last_reviewed.md — Deferred — human PR author updates on PR open
+```
+
+If a row is not `N/A`, apply the corresponding edit in the same turn (after the one-prompt approval, unless the user already said "update docs"). The `last_reviewed.md` row is always `Deferred` — see [Reviewer identity](#reviewer-identity).
+
+> If you are about to end your turn without emitting this block after a code change, flag `[CONTEXT UPDATE REQUIRED]` and emit it before closing.
+
+## What counts as substantial
+
+Prompt about docs when changes include one or more of:
+
+- **New or renamed user-facing flow** → relevant pattern doc + [ARCHITECTURE.md](../../ARCHITECTURE.md).
+- **New data surface or client behavior** (new query/mutation family, new endpoint, change to auth/offline/retry semantics) → pattern doc, ADR if durable.
+- **New reusable pattern** (a second feature copying the same shape) → add/extend a pattern doc; only then add a one-line pointer in the always-on architecture rule if it is core vocabulary.
+- **Behavior change to a core invariant** → keep the always-on rule + [ARCHITECTURE.md](../../ARCHITECTURE.md) aligned.
+- **A production/lint/build-breaking pattern discovered** → a [constraints.md](../../.context/constraints.md) entry so future agents avoid it.
+- **Product- or release-relevant work** → a concise `[Unreleased]` entry in [CHANGELOG.md](../../CHANGELOG.md).
+
+**Usually not substantial:** single-file renames, copy tweaks, one-screen layout, test-only changes, private helper refactors, bugfixes that **restore** documented behavior.
+
+## Per-file rubric
+
+### `.context/history.md`
+Update for a new architectural pattern, a major migration, a schema-affecting change, deprecation of a shared hook/component, or replacement of a widely-used utility. Format (most recent first):
+
+```markdown
+## YYYY-MM-DD — <one-line summary>
+
+**Scope:** <feature / module / shared>
+**What changed:**
+**Why:**
+**Related decisions:** <ADR slug or 'none'>
+```
+
+### `.context/decisions/`
+Structured ADRs, one file per decision: `NNNN-<slug>.md` (zero-padded), indexed by [`.context/decisions/README.md`](../../.context/decisions/README.md). Add a new ADR when the session chose between viable alternatives a future agent might re-litigate. **Never renumber**; supersede with a new ADR that links back, and flip the old one's `Status` to `Superseded by NNNN`. **Amend in place** (with a dated `## Amendment` note) when a recorded decision evolves but is not reversed.
+
+### `.context/constraints.md`
+Add a forbidden pattern / incident under its `### <area>` heading when the session hit a production-, lint-, or build-breaking pattern future agents must avoid. Append; don't delete prior entries unless explicitly superseded by an ADR.
+
+### `ARCHITECTURE.md` / `AGENTS.md`
+- `ARCHITECTURE.md`: touch when the **structural** story changes (features, module map, diagram, client map, Documentation Navigation).
+- `AGENTS.md`: touch only when a **Hard Constraint** is invalidated/added/renamed, or the directory taxonomy changes. [`CLAUDE.md`](../../CLAUDE.md) mirrors `AGENTS.md` via `@./AGENTS.md` — **do not** duplicate edits into `CLAUDE.md`.
+
+### `CHANGELOG.md`
+Keep a Changelog style. Add user/release-meaningful deltas to `[Unreleased]` (sub-sections `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, plus a repo-local `Documentation` sub-section for doc-only deltas). Not every commit.
+
+## How to choose: pattern vs ADR vs architecture vs rule
+
+- **`.context/patterns/`** — *How* to work in a feature area (workflow, files, conventions, pitfalls). Update when the implementation story changes.
+- **`.context/decisions/`** — *Why* we chose X over Y for something costly to reverse. New ADR for new cross-cutting decisions; amend an existing one if the decision already exists.
+- **`ARCHITECTURE.md`** — *What* the app is: features, module map, diagrams, links.
+- **`.cursor/rules/*.mdc`** — *Enforced* always-on reminders or scoped guidance; tight, link out to patterns/ADRs rather than restating them.
+
+## Reviewer identity
+
+`.context/last_reviewed.md` is reserved for the **human PR author**. Agents may *suggest* in the assessment block that it is stale, but must **not** write to it. Format the human enters on PR open: `YYYY-MM-DD | Reviewed by: <name>`.
+
+## Progressive-disclosure split rule
+
+When `history.md` or `constraints.md` reaches ~250 lines **or** ~10 entries, split it: create `.context/<topic>/`, move each entry to its own file (`YYYY-MM-DD-<slug>.md` for history, `<area>.md` for constraints), add a `README.md`/`index.md` listing entries, and replace the flat file with a redirect note. `decisions/` is already a folder. Record the split in `history.md`.
+
+## New rule files
+
+When you add a new always-on `.cursor/rules/*.mdc`, append a matching `@./.cursor/rules/<name>.mdc` import to [`CLAUDE.md`](../../CLAUDE.md) in the same change (or run `ai-workflow-scaffold validate` to detect the drift) — Cursor enforces `alwaysApply` natively, but Claude Code only sees rules that `CLAUDE.md` imports. If the rule is always-on, also add it to the Documentation tables in [ARCHITECTURE.md](../../ARCHITECTURE.md) and the always-on architecture rule.
+
+## How to prompt the user
+
+Be minimal and specific, e.g.:
+
+- "Consider an `[Unreleased]` bullet in `CHANGELOG.md` and a subsection in `.context/patterns/<area>.md`."
+- "This changes a core contract — worth a sentence in the relevant rule and possibly an ADR."
+- "Durable choice: suggest ADR `NNNN` in `.context/decisions/`."
+
+Do not block merge on docs unless the user asked for doc updates in the same task.

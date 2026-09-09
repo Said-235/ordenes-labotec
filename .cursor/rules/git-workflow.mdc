@@ -1,0 +1,30 @@
+---
+description: Git workflow for LABOTEC Órdenes de Servicio — base branch, commit convention, PR expectations, and how to handle AI reviewer comments. Always on.
+globs:
+alwaysApply: true
+---
+
+# Git Workflow (LABOTEC Órdenes de Servicio)
+
+## Base branch
+
+- The base branch for all work is **`main`**. Branch from `main` and open PRs **against `main`**.
+- Suggested branch naming: `<type>/<short-slug>` (e.g. `feat/group-invite`, `fix/blank-screen`).
+
+## Commits
+
+El historial en `main` usa **asuntos cortos en español**, no Conventional Commits (ej. `fix qr funcional`, `actualizacion codigo qr`). Seguir ese estilo salvo que el usuario pida otro.
+- **Do not commit unless the user explicitly asks.** When asked, keep each commit scoped and buildable; never commit secrets or `.env*` (only `*.example`).
+- If the team enforces verified commits, sign them; never pass `--no-gpg-sign`. If signing is unavailable in your environment, leave the changes for the human to commit.
+- **Never auto-bump the version inside a feature/fix commit.** Releasing is a separate, developer-triggered ritual.
+
+## Before opening a PR
+
+- Target **`main`**. Write a clear description: **what** changed and **why**, screenshots for UI, and any platform/flavor caveats.
+- If the work is release-relevant, add a concise bullet to `[Unreleased]` in [CHANGELOG.md](../../CHANGELOG.md) (don't cut a release).
+- Run the project's lint/build verification (see [core-workflow.mdc](core-workflow.mdc)) before requesting review.
+- After **substantial** work, emit the `## Context-Update Assessment` block — see [context-maintenance.mdc](context-maintenance.mdc).
+
+## Reviewer comments / the review loop
+
+After completing **substantial** work — committed, or complete-but-uncommitted when commits aren't authorized (the loop's read-only mode reviews the working tree as it stands) — and before opening a PR, run the AI-review loop per the always-on [verify-then-converge.mdc](verify-then-converge.mdc) (depth: [the core doctrine](../../.context/patterns/verify-then-converge-core.md) + [this repo's playbook](../../.context/patterns/verify-then-converge-playbook.md)). When the user pastes CodeRabbit / Copilot review comments, that loop is the process and [code-review.mdc](code-review.mdc) is the per-finding triage format: verify each finding against the current code, give an Apply/Modify/Skip/Refute/Escalate verdict, and apply only the still-valid ones. The "do not commit unless the user explicitly asks" rule above applies to review passes too: commit a pass (tally in the subject) only when the user's request covers it — their ask to run the loop or attend the comments — and otherwise record the proposed pass without committing — with the full read-only record the core doctrine defines: the base SHA plus the identity of the exact content reviewed (head SHA for committed work; for uncommitted work a content fingerprint covering untracked files too — a `git write-tree` against a throwaway index, per the core doctrine — plus worktree status), the complete verdict tally, and one evidence line per non-Apply verdict, so the next pass can scope safely. Read-only mode covers substantial work that is complete but not committed — the review runs on the working tree as it stands.

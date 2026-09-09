@@ -1,21 +1,7 @@
 import { useState, useCallback } from 'react'
 
-const A4_PX = 794   // A4 a 96 DPI en px — ancho fijo de captura
-const A4_MM = 210   // A4 en mm — ancho del PDF final
-
-function cargarScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return }
-    const s = document.createElement('script')
-    s.src = src; s.onload = resolve; s.onerror = reject
-    document.head.appendChild(s)
-  })
-}
-
-async function asegurarLibrerias() {
-  await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
-  await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
-}
+const A4_PX = 794
+const A4_MM = 210
 
 export function usePDF() {
   const [generando, setGenerando] = useState(false)
@@ -26,12 +12,14 @@ export function usePDF() {
     let contenedor = null
 
     try {
-      await asegurarLibrerias()
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ])
 
       const original = document.getElementById('documento-orden-pdf')
       if (!original) throw new Error('No se encontró #documento-orden-pdf')
 
-      // Contenedor oculto de ancho fijo A4 — independiente del viewport
       contenedor = document.createElement('div')
       contenedor.style.cssText = `
         position:fixed; top:-99999px; left:-99999px;
@@ -44,7 +32,6 @@ export function usePDF() {
       const clon = original.cloneNode(true)
       clon.style.cssText = `width:${A4_PX}px; background:#ffffff; overflow:visible; box-sizing:border-box;`
 
-      // Forzar fondos en todos los elementos (encabezado negro, pie, bandas cyan)
       clon.querySelectorAll('*').forEach(el => {
         el.style.webkitPrintColorAdjust = 'exact'
         el.style.printColorAdjust       = 'exact'
@@ -52,11 +39,9 @@ export function usePDF() {
       })
 
       contenedor.appendChild(clon)
-
-      // Esperar layout completo antes de capturar
       await new Promise(r => setTimeout(r, 400))
 
-      const canvas = await window.html2canvas(clon, {
+      const canvas = await html2canvas(clon, {
         scale:           3,
         useCORS:         true,
         allowTaint:      true,
@@ -70,14 +55,13 @@ export function usePDF() {
         imageTimeout: 0,
       })
 
-      // Alto proporcional → 1 sola página sin recortes
-      const { jsPDF } = window.jspdf
       const pdfW = A4_MM
       const pdfH = Math.ceil((canvas.height / canvas.width) * pdfW * 100) / 100
 
       const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[pdfW, pdfH] })
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.97), 'JPEG', 0, 0, pdfW, pdfH)
-      pdf.save(`LABOTEC_${ord.folio}_${ord.tipo.toUpperCase()}.pdf`)
+      const nombre = ord.pending ? `LABOTEC_PENDIENTE_${ord.tipo.toUpperCase()}` : `LABOTEC_${ord.folio}_${ord.tipo.toUpperCase()}`
+      pdf.save(`${nombre}.pdf`)
 
     } catch (err) {
       console.error('[usePDF]', err)

@@ -1,14 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
-import { cargarDB, agregarOrden, eliminarOrden } from '@/services/storage'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { cargarDB, agregarOrden, eliminarOrden, sincronizarPendientes } from '@/services/storage'
 import { getFechaHoy }  from '@/utils/fecha'
-import { generarFolio } from '@/utils/folio'
-import { hashSimple }   from '@/utils/hash'
+import { nuevoId }      from '@/utils/id'
 import { getTipo }      from '@/config/marca'
 
-// ─────────────────────────────────────────────────────────────
-//  Clave del borrador en localStorage
-// ─────────────────────────────────────────────────────────────
 const DRAFT_KEY = 'labotec-borrador-v1'
+const FOLIO_FORM = 'Se asigna al guardar'
 
 function guardarBorrador(draft) {
   try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)) } catch {}
@@ -25,16 +22,19 @@ function limpiarBorrador() {
   try { localStorage.removeItem(DRAFT_KEY) } catch {}
 }
 
-// ─────────────────────────────────────────────────────────────
-//  HOOK PRINCIPAL
-// ─────────────────────────────────────────────────────────────
+function unicos(ordenes, key) {
+  return [...new Set(ordenes.map(o => o[key]).filter(v => typeof v === 'string' && v.trim()))]
+}
+
 export function useOrdenes() {
   const [pantalla,     setPantalla]     = useState('inicio')
   const [cargando,     setCargando]     = useState(true)
+  const [guardando,    setGuardando]    = useState(false)
+  const [sincronizando, setSincronizando] = useState(false)
   const [db,           setDb]           = useState({ ordenes:[], ultimoFolio:1000 })
   const [ordenActual,  setOrdenActual]  = useState(null)
   const [tipo,         setTipo]         = useState('')
-  const [folio,        setFolio]        = useState('')
+  const [folio,        setFolio]        = useState(FOLIO_FORM)
   const [responsable,  setResponsable]  = useState('')
   const [razonSocial,  setRazonSocial]  = useState('')
   const [direccion,    setDireccion]    = useState('')
@@ -52,21 +52,59 @@ export function useOrdenes() {
 
   const fecha        = getFechaHoy()
   const guardandoRef = useRef(false)
+  const syncingRef   = useRef(false)
+  const dbRef        = useRef(db)
+  dbRef.current = db
 
-  // ── Cargar BD al iniciar ──
   useEffect(() => {
     cargarDB().then(d => {
       setDb(d)
-      // Verificar si existe un borrador guardado
       const draft = cargarBorrador()
       if (draft?.tipo) setTieneBorrador(true)
       setCargando(false)
     })
   }, [])
 
-  // ── Guardar borrador automáticamente cuando cambian los campos ──
+  async function flushPendientes() {
+    if (syncingRef.current) return
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
+    const hay = dbRef.current.ordenes.some(o => o.pending)
+    if (!hay) return
+    syncingRef.current = true
+    setSincronizando(true)
+    try {
+      const res = await sincronizarPendientes(dbRef.current.ordenes, dbRef.current.ultimoFolio)
+      setDb({
+        ordenes: res.ordenes,
+        ultimoFolio: res.ultimoFolio ?? dbRef.current.ultimoFolio,
+      })
+      setOrdenActual(prev => {
+        if (!prev) return prev
+        const updated = res.ordenes.find(o => o.id === prev.id)
+        return updated || prev
+      })
+    } finally {
+      syncingRef.current = false
+      setSincronizando(false)
+    }
+  }
+
   useEffect(() => {
-    if (pantalla !== 'form') return          // solo guardar si está en el form
+    const onOnline = () => { flushPendientes() }
+    const onVis = () => {
+      if (document.visibilityState === 'visible') flushPendientes()
+    }
+    window.addEventListener('online', onOnline)
+    document.addEventListener('visibilitychange', onVis)
+    if (navigator.onLine) flushPendientes()
+    return () => {
+      window.removeEventListener('online', onOnline)
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (pantalla !== 'form') return
     if (guardandoRef.current) return
     guardandoRef.current = true
 
@@ -74,7 +112,6 @@ export function useOrdenes() {
                     horaInicio, horaFin, equipo, serie,
                     actividades, refacciones, comentarios }
 
-    // Solo guardar si hay algo escrito (evitar guardar form vacío)
     const hayContenido = responsable || razonSocial || equipo || serie ||
                          actividades.some(a => a.trim())
     if (hayContenido) {
@@ -85,22 +122,19 @@ export function useOrdenes() {
   }, [pantalla, tipo, folio, responsable, razonSocial, direccion,
       horaInicio, horaFin, equipo, serie, actividades, refacciones, comentarios])
 
-  // ── Iniciar formulario nuevo ──
   function iniciar(t) {
-    const { folio:f } = generarFolio(db.ultimoFolio)
-    setFolio(f); setTipo(t)
+    setFolio(FOLIO_FORM); setTipo(t)
     setResponsable(''); setRazonSocial(''); setDireccion('')
     setHoraInicio(''); setHoraFin(''); setEquipo(''); setSerie('')
     setActividades(['']); setRefacciones([{codigo:'',nombre:'',motivo:''}])
     setComentarios(''); limpiarBorrador(); setPantalla('form')
   }
 
-  // ── Restaurar borrador ──
   function restaurarBorrador() {
     const draft = cargarBorrador()
     if (!draft) return
     setTipo(draft.tipo || '')
-    setFolio(draft.folio || generarFolio(db.ultimoFolio).folio)
+    setFolio(FOLIO_FORM)
     setResponsable(draft.responsable  || '')
     setRazonSocial(draft.razonSocial  || '')
     setDireccion(draft.direccion      || '')
@@ -115,14 +149,13 @@ export function useOrdenes() {
     setPantalla('form')
   }
 
-  // ── Descartar borrador ──
   function descartarBorrador() {
     limpiarBorrador()
     setTieneBorrador(false)
   }
 
-  // ── Generar y guardar orden ──
   async function generar(firmaRespURL, firmaIngURL) {
+    if (guardando) return
     if (!responsable||!razonSocial||!direccion||!horaInicio||!horaFin||!equipo||!serie) {
       alert('Completa todos los campos obligatorios (*)'); return
     }
@@ -130,27 +163,57 @@ export function useOrdenes() {
     if (!acts.length) { alert('Agrega al menos una actividad.'); return }
     const tc      = getTipo(tipo)
     const refs    = tc.showRefacciones ? refacciones.filter(r=>r.codigo||r.nombre||r.motivo) : []
-    const payload = `https://ordenes-servicio-labotec.netlify.app/verificar/${folio}`
-    const { numero } = generarFolio(db.ultimoFolio)
     const ord = {
-      id:Date.now().toString(), folio, tipo, fecha, fechaISO:new Date().toISOString(),
+      id: nuevoId(), folio: 'PENDIENTE', pending: true, tipo, fecha, fechaISO: new Date().toISOString(),
       responsable, razonSocial, direccion, horaInicio, horaFin, equipo, serie,
       actividades:acts, refacciones:refs, comentarios:comentarios.trim(),
       firmaResp:firmaRespURL, firmaIng:firmaIngURL,
-      qrPayload:payload, qrHash:`Verificar en: ${payload}`
+      qrPayload: '', qrHash: '',
     }
-    // Limpiar borrador al generar exitosamente
-    limpiarBorrador()
-    const newDb = await agregarOrden(db.ordenes, ord, numero)
-    setDb(newDb); setOrdenActual(ord); setPantalla('orden'); window.scrollTo(0,0)
+
+    setGuardando(true)
+    try {
+      limpiarBorrador()
+      const newDb = await agregarOrden(db.ordenes, ord)
+      if (newDb.ultimoFolio != null) {
+        setDb({ ordenes: newDb.ordenes, ultimoFolio: newDb.ultimoFolio })
+      } else {
+        setDb(prev => ({ ...prev, ordenes: newDb.ordenes }))
+      }
+      setOrdenActual(newDb.saved || newDb.ordenes[0])
+      setPantalla('orden')
+      window.scrollTo(0,0)
+      if (newDb.queued) {
+        alert('Sin conexión con la base. La orden quedó pendiente y se subirá al recuperar señal.')
+      }
+    } catch (err) {
+      console.error('[useOrdenes] generar:', err)
+      alert('No se pudo guardar la orden. Revisa la conexión e inténtalo de nuevo.')
+    } finally {
+      setGuardando(false)
+    }
   }
 
-  // ── Eliminar orden ──
   async function eliminar(id) {
-    const newDb = await eliminarOrden(db.ordenes, id, db.ultimoFolio)
-    setDb(newDb); setParaEliminar(null)
-    if (pantalla==='detalle') setPantalla('historial')
+    try {
+      const newDb = await eliminarOrden(db.ordenes, id, db.ultimoFolio)
+      setDb(newDb); setParaEliminar(null)
+      if (pantalla==='detalle') setPantalla('historial')
+    } catch (err) {
+      console.error('[useOrdenes] eliminar:', err)
+      alert('No se pudo eliminar la orden.')
+    }
   }
+
+  const sugerencias = useMemo(() => ({
+    responsable: unicos(db.ordenes, 'responsable'),
+    razonSocial: unicos(db.ordenes, 'razonSocial'),
+    direccion:   unicos(db.ordenes, 'direccion'),
+    equipo:      unicos(db.ordenes, 'equipo'),
+    serie:       unicos(db.ordenes, 'serie'),
+  }), [db.ordenes])
+
+  const pendientes = db.ordenes.filter(o => o.pending).length
 
   const ordenesFiltradas = db.ordenes.filter(o => {
     const q = busqueda.toLowerCase()
@@ -159,7 +222,7 @@ export function useOrdenes() {
   })
 
   return {
-    pantalla, setPantalla, cargando, db,
+    pantalla, setPantalla, cargando, guardando, sincronizando, db,
     ordenActual, setOrdenActual,
     tipo, folio, fecha,
     responsable, setResponsable, razonSocial, setRazonSocial,
@@ -170,6 +233,6 @@ export function useOrdenes() {
     busqueda, setBusqueda, filtroTipo, setFiltroTipo,
     ordenesFiltradas, paraEliminar, setParaEliminar,
     tieneBorrador, restaurarBorrador, descartarBorrador,
-    iniciar, generar, eliminar,
+    iniciar, generar, eliminar, sugerencias, pendientes, flushPendientes,
   }
 }

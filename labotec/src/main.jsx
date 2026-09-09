@@ -1,8 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 import App       from './App.jsx'
 import Verificar from './pages/Verificar.jsx'
 import '@/styles/global.css'
+
+registerSW({ immediate: true })
 
 // ─────────────────────────────────────────────────────────────
 //  Enrutador simple — sin librería externa

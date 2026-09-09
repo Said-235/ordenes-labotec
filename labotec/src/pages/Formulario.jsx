@@ -1,5 +1,7 @@
 import NavBar      from '@/components/layout/NavBar'
-import FirmaCanvas, { firmaEstaVacia } from '@/components/form/FirmaCanvas'
+import FirmaCanvas, { firmaEstaVacia, firmaDataURL } from '@/components/form/FirmaCanvas'
+import CampoSuggest from '@/components/form/CampoSuggest'
+import CampoHora from '@/components/form/CampoHora'
 import { getTipo }  from '@/config/marca'
 import styles from './Formulario.module.css'
 
@@ -10,23 +12,16 @@ export default function Formulario({ ctx }) {
     direccion, setDireccion, horaInicio, setHoraInicio, horaFin, setHoraFin,
     equipo, setEquipo, serie, setSerie,
     actividades, setActividades, refacciones, setRefacciones,
-    comentarios, setComentarios, generar,
+    comentarios, setComentarios, generar, guardando, sugerencias,
   } = ctx
 
   const tipoConfig = getTipo(tipo)
-  const { color, colorBg, label:tipoLabel, code, showRefacciones } = tipoConfig
+  const { color, colorBg, code, showRefacciones } = tipoConfig
 
   function handleGenerar() {
-    const fR = !firmaEstaVacia('firma-responsable') ? document.getElementById('firma-responsable').toDataURL() : null
-    const fI = !firmaEstaVacia('firma-ingeniero')   ? document.getElementById('firma-ingeniero').toDataURL()   : null
+    const fR = !firmaEstaVacia('firma-responsable') ? firmaDataURL('firma-responsable') : null
+    const fI = !firmaEstaVacia('firma-ingeniero')   ? firmaDataURL('firma-ingeniero')   : null
     generar(fR, fI)
-  }
-
-  // Calcular AM/PM a partir del valor 24h
-  function getAmPm(val) {
-    if (!val) return ''
-    const h = parseInt(val.split(':')[0])
-    return h >= 12 ? 'PM' : 'AM'
   }
 
   return (
@@ -41,52 +36,53 @@ export default function Formulario({ ctx }) {
 
       <div className={styles.body}>
 
-        {/* 01 Datos Generales */}
         <section className={styles.seccion}>
           <h2 className={styles.secTitulo}>01 · Datos Generales</h2>
           <div className={styles.grid2}>
             <Campo label="Fecha de creación"><input className={`${styles.input} ${styles.inputReadonly}`} value={fecha} readOnly /></Campo>
             <Campo label="Folio"><input className={`${styles.input} ${styles.inputFolio}`} value={folio} readOnly /></Campo>
           </div>
-          <Campo label="Responsable de laboratorio *"><input className={styles.input} placeholder="Nombre completo" value={responsable} onChange={e=>setResponsable(e.target.value)} /></Campo>
-          <Campo label="Razón social del cliente *"><input className={styles.input} placeholder="Empresa o institución" value={razonSocial} onChange={e=>setRazonSocial(e.target.value)} /></Campo>
-          <Campo label="Dirección donde se realizó el servicio *"><input className={styles.input} placeholder="Calle, número, colonia, ciudad" value={direccion} onChange={e=>setDireccion(e.target.value)} /></Campo>
+          <CampoSuggest
+            listId="sug-responsable" label="Responsable de laboratorio *"
+            placeholder="Nombre completo" value={responsable} onChange={setResponsable}
+            options={sugerencias.responsable} />
+          <CampoSuggest
+            listId="sug-razon" label="Razón social del cliente *"
+            placeholder="Empresa o institución" value={razonSocial} onChange={setRazonSocial}
+            options={sugerencias.razonSocial} />
+          <CampoSuggest
+            listId="sug-direccion" label="Dirección donde se realizó el servicio *"
+            placeholder="Calle, número, colonia, ciudad" value={direccion} onChange={setDireccion}
+            options={sugerencias.direccion} />
           <div className={styles.grid2}>
-            <Campo label="Hora de inicio *">
-              <div className={styles.horaWrap}>
-                <input className={styles.inputHora} type="time" value={horaInicio} onChange={e=>setHoraInicio(e.target.value)} />
-                {getAmPm(horaInicio) && <span className={`${styles.ampmLabel} ${getAmPm(horaInicio)==='PM'?styles.pm:styles.am}`}>{getAmPm(horaInicio)}</span>}
-              </div>
-            </Campo>
-            <Campo label="Hora de término *">
-              <div className={styles.horaWrap}>
-                <input className={styles.inputHora} type="time" value={horaFin} onChange={e=>setHoraFin(e.target.value)} />
-                {getAmPm(horaFin) && <span className={`${styles.ampmLabel} ${getAmPm(horaFin)==='PM'?styles.pm:styles.am}`}>{getAmPm(horaFin)}</span>}
-              </div>
-            </Campo>
+            <CampoHora label="Hora de inicio *" value={horaInicio} onChange={setHoraInicio} />
+            <CampoHora label="Hora de término *" value={horaFin} onChange={setHoraFin} />
           </div>
         </section>
 
-        {/* 02 Equipo */}
         <section className={styles.seccion}>
           <h2 className={styles.secTitulo}>02 · Datos del Equipo</h2>
-          <Campo label="Equipo con servicio *"><input className={styles.input} placeholder="Nombre y modelo del equipo" value={equipo} onChange={e=>setEquipo(e.target.value)} /></Campo>
-          <Campo label="Número de serie *"><input className={styles.input} placeholder="S/N · Número de serie" value={serie} onChange={e=>setSerie(e.target.value)} /></Campo>
+          <CampoSuggest
+            listId="sug-equipo" label="Equipo con servicio *"
+            placeholder="Nombre y modelo del equipo" value={equipo} onChange={setEquipo}
+            options={sugerencias.equipo} />
+          <CampoSuggest
+            listId="sug-serie" label="Número de serie *"
+            placeholder="S/N · Número de serie" value={serie} onChange={setSerie}
+            options={sugerencias.serie} />
         </section>
 
-        {/* 03 Actividades */}
         <section className={styles.seccion}>
           <h2 className={styles.secTitulo}>03 · Actividades Realizadas</h2>
           {actividades.map((a,i) => (
             <div key={i} className={styles.filaItem}>
               <input className={`${styles.input} ${styles.inputFlex}`} placeholder="Descripción de la actividad" value={a} onChange={e=>setActividades(v=>v.map((x,j)=>j===i?e.target.value:x))} />
-              <button className={styles.btnRemover} onClick={()=>setActividades(v=>v.length>1?v.filter((_,j)=>j!==i):[''])}>×</button>
+              <button className={styles.btnRemover} type="button" onClick={()=>setActividades(v=>v.length>1?v.filter((_,j)=>j!==i):[''])}>×</button>
             </div>
           ))}
-          <button className={styles.btnAgregar} onClick={()=>setActividades(v=>[...v,''])}>+ Agregar actividad</button>
+          <button className={styles.btnAgregar} type="button" onClick={()=>setActividades(v=>[...v,''])}>+ Agregar actividad</button>
         </section>
 
-        {/* 04 Refacciones (condicional) */}
         {showRefacciones && (
           <section className={styles.seccion}>
             <h2 className={styles.secTitulo}>04 · Refacciones Utilizadas</h2>
@@ -95,14 +91,13 @@ export default function Formulario({ ctx }) {
                 <input className={`${styles.input} ${styles.inputCodigo}`}  placeholder="Código"              value={r.codigo} onChange={e=>setRefacciones(v=>v.map((x,j)=>j===i?{...x,codigo:e.target.value}:x))} />
                 <input className={`${styles.input} ${styles.inputNombre}`}  placeholder="Nombre de refacción" value={r.nombre} onChange={e=>setRefacciones(v=>v.map((x,j)=>j===i?{...x,nombre:e.target.value}:x))} />
                 <input className={`${styles.input} ${styles.inputMotivo}`}  placeholder="Motivo de utilización" value={r.motivo} onChange={e=>setRefacciones(v=>v.map((x,j)=>j===i?{...x,motivo:e.target.value}:x))} />
-                <button className={styles.btnRemover} onClick={()=>setRefacciones(v=>v.length>1?v.filter((_,j)=>j!==i):[{codigo:'',nombre:'',motivo:''}])}>×</button>
+                <button className={styles.btnRemover} type="button" onClick={()=>setRefacciones(v=>v.length>1?v.filter((_,j)=>j!==i):[{codigo:'',nombre:'',motivo:''}])}>×</button>
               </div>
             ))}
-            <button className={styles.btnAgregar} onClick={()=>setRefacciones(v=>[...v,{codigo:'',nombre:'',motivo:''}])}>+ Agregar refacción</button>
+            <button className={styles.btnAgregar} type="button" onClick={()=>setRefacciones(v=>[...v,{codigo:'',nombre:'',motivo:''}])}>+ Agregar refacción</button>
           </section>
         )}
 
-        {/* 05 Comentarios */}
         <section className={styles.seccion}>
           <h2 className={styles.secTitulo}>{showRefacciones?'05':'04'} · Comentarios y Pendientes</h2>
           <Campo label="Observaciones, pendientes o notas adicionales (opcional)">
@@ -110,7 +105,6 @@ export default function Formulario({ ctx }) {
           </Campo>
         </section>
 
-        {/* 06 Firmas */}
         <section className={styles.seccion}>
           <h2 className={styles.secTitulo}>{showRefacciones?'06':'05'} · Firmas Digitales</h2>
           <div className={styles.grid2}>
@@ -119,7 +113,9 @@ export default function Formulario({ ctx }) {
           </div>
         </section>
 
-        <button className={styles.btnGenerar} onClick={handleGenerar}>🗂 GENERAR ORDEN DE SERVICIO</button>
+        <button className={styles.btnGenerar} type="button" onClick={handleGenerar} disabled={guardando}>
+          {guardando ? 'Guardando…' : '🗂 GENERAR ORDEN DE SERVICIO'}
+        </button>
       </div>
     </div>
   )

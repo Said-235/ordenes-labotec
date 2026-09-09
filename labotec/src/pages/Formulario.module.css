@@ -23,15 +23,7 @@
 .tipoBadge     { padding:5px 14px; border-radius:20px; font-size:10px; font-weight:800; font-family:var(--font-mono); letter-spacing:1.5px; border:1px solid; }
 .btnGenerar    { display:block; width:100%; padding:16px; background:linear-gradient(135deg,var(--negro) 0%,#2a2a2a 100%); color:var(--cyan); border:2px solid var(--cyan); border-radius:12px; font-size:16px; font-weight:800; letter-spacing:1px; box-shadow:var(--shadow-cyan); cursor:pointer; font-family:var(--font-base); transition:opacity .2s; }
 .btnGenerar:hover { opacity:.88; }
-
-/* Hora + AM/PM */
-.horaWrap   { display:flex; align-items:center; gap:8px; }
-.inputHora  { flex:1; padding:10px 13px; border:1.5px solid var(--borde); border-radius:8px; font-size:14px; color:var(--negro); background:#fafefe; outline:none; box-sizing:border-box; transition:border-color .2s; cursor:pointer; font-family:var(--font-base); }
-.inputHora:focus,.inputHora:hover { border-color:var(--cyan); }
-.inputHora::-webkit-calendar-picker-indicator { position:absolute; right:0; top:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-.ampmLabel  { flex-shrink:0; padding:4px 9px; border-radius:6px; font-size:11px; font-weight:800; font-family:var(--font-mono); letter-spacing:.5px; }
-.am { background:rgba(78,205,196,.12); color:var(--cyan-dark); border:1px solid rgba(78,205,196,.3); }
-.pm { background:rgba(167,139,250,.12); color:#7c5cbf; border:1px solid rgba(167,139,250,.3); }
+.btnGenerar:disabled { opacity:.5; cursor:wait; }
 
 @media (max-width:600px) {
   .grid2   { grid-template-columns:1fr; }

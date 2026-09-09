@@ -1,0 +1,40 @@
+---
+description: Core workflow for LABOTEC Órdenes de Servicio — toolchain, how to run/build/lint, and safety rules. Always on. (Stack packs replace this stub with stack-specific content.)
+globs:
+alwaysApply: true
+---
+
+# Core Workflow (LABOTEC Órdenes de Servicio)
+
+> This is the stack-agnostic stub. If you installed a stack pack, it replaces this file
+> with toolchain-specific guidance. Otherwise, the fill-pass should complete it.
+
+## Toolchain
+
+- **npm** + lockfile en la raíz (`package-lock.json`). No yarn / pnpm.
+- Node **>=20** (Netlify `NODE_VERSION = "20"`).
+- App en el workspace `labotec`. Comandos siempre desde la raíz (`npm run dev` / `build` / `preview`).
+
+## Run / develop
+
+| Task | Command |
+|---|---|
+| Install | `npm install` (raíz) |
+| Run | `npm run dev` → Vite en `http://localhost:5173/` |
+| Build | `npm run build` → `labotec/dist` |
+| Preview | `npm run preview` |
+| Lint / test | **No hay** script de lint ni test runner |
+| Commit | Solo si el usuario lo pide; ver [git-workflow.mdc](git-workflow.mdc) |
+
+## Verification
+
+**No hay test runner automatizado** (ni Jest, ni Vitest, ni Playwright en `package.json`). Antes de review: `npm run build` y, si el cambio es UI, ejercitar el flujo en el browser (`npm run dev`). Un build verde no prueba persistencia ni RLS.
+
+## Safety
+
+- **Never add or commit secrets** — `.env*`, keystores, tokens. Only `*.example` templates are tracked.
+- **Keep changes scoped**; avoid drive-by refactors unless required for the task.
+
+## Reference
+
+See [AGENTS.md](../../AGENTS.md) and [.context/agents/README.md](../../.context/agents/README.md) for the full command map and conventions.

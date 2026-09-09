@@ -1,15 +1,10 @@
 import { supabase } from './supabase.js'
-
-// ─────────────────────────────────────────────────────────────
-//  CAPA DE DATOS — Supabase
-//  El resto de la app (useOrdenes, componentes, páginas)
-//  no cambia nada — solo este archivo.
-// ─────────────────────────────────────────────────────────────
+import { listPending, enqueuePending, removePending } from './offlineQueue.js'
 
 const INIT = { ordenes: [], ultimoFolio: 1000 }
 
-// ── Convertir fila de DB (snake_case) → objeto app (camelCase)
 function desdeDB(row) {
+  if (!row) return null
   return {
     id:          row.id,
     folio:       row.folio,
@@ -30,16 +25,16 @@ function desdeDB(row) {
     firmaIng:    row.firma_ing,
     qrPayload:   row.qr_payload,
     qrHash:      row.qr_hash,
+    pending:     false,
   }
 }
 
-// ── Convertir objeto app (camelCase) → fila de DB (snake_case)
-function paraDB(ord) {
+function paraRpc(ord) {
   return {
     id:           ord.id,
-    folio:        ord.folio,
     tipo:         ord.tipo,
     fecha:        ord.fecha,
+    fecha_iso:    ord.fechaISO,
     responsable:  ord.responsable,
     razon_social: ord.razonSocial,
     direccion:    ord.direccion,
@@ -52,13 +47,17 @@ function paraDB(ord) {
     comentarios:  ord.comentarios,
     firma_resp:   ord.firmaResp,
     firma_ing:    ord.firmaIng,
-    qr_payload:   ord.qrPayload,
-    qr_hash:      ord.qrHash,
   }
 }
 
-// ── CARGAR ────────────────────────────────────────────────────
+function mezclar(pendientes, remotas) {
+  const idsRemotos = new Set(remotas.map(o => o.id))
+  const locales = pendientes.filter(o => !idsRemotos.has(o.id))
+  return [...locales, ...remotas]
+}
+
 export async function cargarDB() {
+  const pendientes = await listPending()
   try {
     const [{ data: filas, error }, { data: cfg }] = await Promise.all([
       supabase
@@ -74,50 +73,109 @@ export async function cargarDB() {
 
     if (error) throw error
 
+    const remotas = (filas || []).map(desdeDB)
     return {
-      ordenes:     (filas || []).map(desdeDB),
-      ultimoFolio: parseInt(cfg?.value || '1000'),
+      ordenes:     mezclar(pendientes, remotas),
+      ultimoFolio: parseInt(cfg?.value || '1000', 10),
     }
   } catch (err) {
     console.error('[storage] cargarDB:', err)
-    return { ...INIT }
+    return {
+      ordenes:     pendientes,
+      ultimoFolio: INIT.ultimoFolio,
+    }
   }
 }
 
-// ── GUARDAR (compatibilidad — no se usa con Supabase) ─────────
-export async function guardarDB() {
-  // Con Supabase cada operación es atómica
-  // Esta función se mantiene por compatibilidad con useOrdenes
+export async function guardarDB() {}
+
+async function insertarRemoto(nuevaOrden) {
+  let lastErr
+  for (let i = 0; i < 3; i++) {
+    const { data, error } = await supabase.rpc('reservar_y_insertar_orden', {
+      p_orden: paraRpc(nuevaOrden),
+    })
+    if (!error && data) {
+      const payload = typeof data === 'string' ? JSON.parse(data) : data
+      const saved = desdeDB(payload.orden)
+      return { saved, ultimoFolio: parseInt(payload.ultimo_folio, 10) }
+    }
+    lastErr = error
+    const code = error?.code || error?.details || ''
+    if (String(code).includes('23505') && i < 2) continue
+    throw error
+  }
+  throw lastErr
 }
 
-// ── AGREGAR ORDEN ─────────────────────────────────────────────
-export async function agregarOrden(ordenesActuales, nuevaOrden, nuevoFolio) {
-  try {
-    const [{ error: errOrden }, { error: errCfg }] = await Promise.all([
-      supabase
-        .from('ordenes')
-        .insert(paraDB(nuevaOrden)),
-      supabase
-        .from('config')
-        .update({ value: String(nuevoFolio) })
-        .eq('key', 'ultimo_folio')
-    ])
-
-    if (errOrden) throw errOrden
-    if (errCfg)   throw errCfg
-
+export async function agregarOrden(ordenesActuales, nuevaOrden) {
+  const online = typeof navigator === 'undefined' || navigator.onLine
+  if (!online) {
+    const local = { ...nuevaOrden, pending: true, folio: 'PENDIENTE' }
+    await enqueuePending(local)
     return {
-      ordenes:     [nuevaOrden, ...ordenesActuales],
-      ultimoFolio: nuevoFolio,
+      ordenes:     mezclar([local], ordenesActuales.filter(o => o.id !== local.id)),
+      ultimoFolio: undefined,
+      saved:       local,
+    }
+  }
+
+  try {
+    const { saved, ultimoFolio } = await insertarRemoto(nuevaOrden)
+    await removePending(nuevaOrden.id).catch(() => {})
+    return {
+      ordenes: [saved, ...ordenesActuales.filter(o => o.id !== saved.id && o.id !== nuevaOrden.id)],
+      ultimoFolio,
+      saved,
     }
   } catch (err) {
     console.error('[storage] agregarOrden:', err)
-    throw err
+    const local = { ...nuevaOrden, pending: true, folio: 'PENDIENTE' }
+    await enqueuePending(local)
+    return {
+      ordenes:     mezclar([local], ordenesActuales.filter(o => o.id !== local.id)),
+      ultimoFolio: undefined,
+      saved:       local,
+      queued:      true,
+      error:       err,
+    }
   }
 }
 
-// ── ELIMINAR ORDEN ────────────────────────────────────────────
+export async function sincronizarPendientes(ordenesActuales, ultimoFolio) {
+  const pendientes = await listPending()
+  let ordenes = ordenesActuales
+  let folio = ultimoFolio
+  let subidas = 0
+  const errores = []
+
+  for (const pend of pendientes) {
+    try {
+      const { saved, ultimoFolio: n } = await insertarRemoto(pend)
+      await removePending(pend.id)
+      ordenes = [saved, ...ordenes.filter(o => o.id !== pend.id && o.id !== saved.id)]
+      folio = n
+      subidas++
+    } catch (err) {
+      console.error('[storage] sync:', err)
+      errores.push(err)
+      break
+    }
+  }
+
+  return { ordenes, ultimoFolio: folio, subidas, errores }
+}
+
 export async function eliminarOrden(ordenesActuales, id, ultimoFolio) {
+  const actual = ordenesActuales.find(o => o.id === id)
+  if (actual?.pending) {
+    await removePending(id)
+    return {
+      ordenes:     ordenesActuales.filter(o => o.id !== id),
+      ultimoFolio,
+    }
+  }
+
   try {
     const { error } = await supabase
       .from('ordenes')
@@ -128,7 +186,7 @@ export async function eliminarOrden(ordenesActuales, id, ultimoFolio) {
 
     return {
       ordenes:     ordenesActuales.filter(o => o.id !== id),
-      ultimoFolio: ultimoFolio,
+      ultimoFolio,
     }
   } catch (err) {
     console.error('[storage] eliminarOrden:', err)

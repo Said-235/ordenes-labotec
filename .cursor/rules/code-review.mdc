@@ -1,0 +1,109 @@
+---
+description: Code review workflow for LABOTEC Órdenes de Servicio — the repo overlay of the verify-then-converge loop. Apply when the user pastes AI reviewer comments (CodeRabbit, Copilot, etc.) and asks you to assess and/or apply them, or when a loop pass returns findings.
+globs:
+alwaysApply: false
+---
+
+# Code Review Mode — "Verify, then Apply"
+
+## When this rule applies
+
+This is the **repo overlay** of the always-on loop in [verify-then-converge.mdc](verify-then-converge.mdc) (depth: [the core doctrine](../../.context/patterns/verify-then-converge-core.md) + [this repo's playbook](../../.context/patterns/verify-then-converge-playbook.md)) — the loop owns scoping, consent, validation, commit-per-pass, and convergence; this overlay owns the per-finding triage format and the repo gotcha list below.
+
+The user pastes one or more AI reviewer comments and asks you to assess and/or apply them, or a loop pass returns findings. Follow this process exactly. The standing instruction for these batches:
+
+> Verify each finding against the current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+---
+
+## Step 1: Verify before touching anything
+
+**Always read the relevant file(s) before deciding.** Never apply a finding from the reviewer's description alone — comments can be stale, describe already-fixed code, or mischaracterize behavior.
+
+```
+Rule: Read the file → confirm the finding is still valid → only then apply.
+```
+
+If the finding is already resolved (prior session or earlier in this one), say so and skip it.
+
+---
+
+## Step 2: Assess each finding
+
+Give a verdict before writing code:
+
+| Verdict | Meaning |
+|---|---|
+| **Apply** | Real issue, clear fix, benefit justifies the change |
+| **Modify** | Directionally right but needs adjustment for this codebase |
+| **Skip** | A real finding deliberately carried: benefit negligible, out of this change's scope (with the evidence), or already addressed |
+| **Refute** | The reviewer's claim is demonstrably false — refuted with an executed check or the repo's own authority. Distinct from Skip: this is reviewer-calibration data |
+| **Escalate** | Narrow: the technically-correct fix contradicts a canonical spec, an ADR, or an explicit product decision — escalate the *verified* decision (confirmed findings, real scope, costed options) for the human to choose |
+
+Explain each verdict in 1–2 sentences. The user makes the final call.
+
+---
+
+## Step 3: Prioritization
+
+### Apply without hesitation
+- Correctness bugs (race conditions, unguarded access, off-by-one).
+- Fire-and-forget promise without a `.catch()` (or an unawaited async submit handler that clears input optimistically).
+- Dead code / commented-out code / no-op expressions.
+- Hardcoded secrets, tokens, or absolute machine paths.
+- Mutaciones de `ordenes`/`config` fuera de `storage.js`.
+- `.env` puesto en `labotec/` (Vite no lo lee; `envDir` es la raíz).
+- Asumir que `fechaISO` se guardó: `paraDB` no manda `fecha_iso`.
+
+### Apply with judgment
+- Performance claims — verify first; apply when measurable or demonstrable.
+- Refactors for discoverability (extracting a hook/util used in ≥2 places).
+- Server-driven feature flags replacing brittle literals — apply when contained; otherwise log as a candidate cleanup.
+- Accessibility additions that give real information (labels, roles, touch-target size).
+
+### Skip
+- "Consider/think about" suggestions with no concrete correctness benefit.
+- Cosmetic restructuring of working code.
+- Changes that alter a working design without identifying a real defect.
+- Suggestions to bump the version — **never** here; releasing is a separate ritual.
+
+---
+
+## Step 4: Batch application
+
+1. Read all relevant files first (batch the reads).
+2. Apply shared/foundational changes first (a hook/util others depend on), then call sites.
+3. Keep edits minimal and scoped to the finding.
+4. Run your linter on every modified file at the end and fix anything you introduced.
+
+---
+
+## Output format
+
+```text
+**Finding: [short description]**
+**Verdict: Apply / Modify / Skip / Refute / Escalate**
+[1–2 sentence reason]
+[Then apply, or explain why not]
+```
+
+For a batch: list all verdicts as a table first, then proceed with the "Apply" set (immediately if the user said "apply all" / "implement them").
+
+---
+
+## Common gotchas in this codebase
+
+- **Env en la raíz** — `VITE_*` no se cargan desde `labotec/.env`. → [constraints.md](../../.context/constraints.md)
+- **Capa de datos** — no `supabase.from(...).insert` en páginas/hooks. → ADR-0001
+- **fecha_iso** — el insert no la envía; el historial puede perder `fechaISO`.
+- **i18n** — no hay locales; no marcar copy ES como “must localize”.
+- **Deploy** — Netlify Git CD, no GitHub Actions.
+- See [constraints.md](../../.context/constraints.md) for the incidents behind these gotchas.
+
+## Related
+
+- [verify-then-converge.mdc](verify-then-converge.mdc) — the always-on loop this overlay plugs into.
+- [verify-then-converge-core.md](../../.context/patterns/verify-then-converge-core.md) — the org doctrine (kit-managed); [verify-then-converge-playbook.md](../../.context/patterns/verify-then-converge-playbook.md) — this repo's heuristics, taxonomy, and incidents.
+- [ordenes-labotec-architecture.mdc](ordenes-labotec-architecture.mdc) — Critical Rules the above enforce.
+- [constraints.md](../../.context/constraints.md) — the incidents behind these gotchas.
+- [git-workflow.mdc](git-workflow.mdc) — commit/PR conventions after applying.

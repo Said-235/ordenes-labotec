@@ -12,7 +12,9 @@ export default function OrdenVista({ ctx }) {
           <>
             <button className={styles.btnHistorial} onClick={()=>setPantalla('historial')}>📋 Historial</button>
             <BtnPDF ord={ordenActual} />
-            <span className={styles.badge}>✓ Guardada</span>
+            <span className={styles.badge}>
+              {ordenActual?.pending ? 'Pendiente de subir' : '✓ Guardada'}
+            </span>
           </>
         } />
       <div className={styles.body}>

@@ -1,0 +1,86 @@
+---
+description: Always-on architecture context for LABOTEC Órdenes de Servicio — the tight reminder set and a map to the canonical docs. A map, not a second copy of every feature.
+globs:
+alwaysApply: true
+---
+
+# LABOTEC Órdenes de Servicio Architecture Context
+
+## Entry Point
+
+**Start here**: read [ARCHITECTURE.md](../../ARCHITECTURE.md) for the complete system overview, file map, and documentation navigation. This rule is the always-on, tight reminder set — a **map, not a second copy** of every feature.
+
+## Quick Facts
+
+- **What**: SPA de órdenes de servicio LABOTEC (crear / firmar / listar / verificar).
+- **Platform**: Vite 5 + React 18, npm workspaces (`labotec`).
+- **Languages**: JavaScript + JSX (no TypeScript).
+- **Data**: Supabase (`ordenes`, `config`) — [ADR-0001](../../.context/decisions/0001-supabase-persistence.md)
+- **State**: `useOrdenes`; borrador en `localStorage` (`labotec-borrador-v1`)
+- **Nav**: `main.jsx` `/verificar/:folio`; resto `App.jsx` `pantalla`
+- **i18n**: none — copy ES en componentes
+- **Secrets**: `.env` raíz `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY`
+- **Verify**: no test runner; gate = `npm run build`
+- **Deploy**: Netlify CD desde `main` → `labotec/dist`
+
+## Project Structure
+
+```text
+labotec/src/pages/          pantallas
+labotec/src/hooks/          useOrdenes, usePDF
+labotec/src/services/       supabase.js, storage.js
+labotec/src/components/     UI (form, historial, document, common)
+labotec/src/config/marca.js tipos de orden
+labotec/src/utils/          folio, fecha, qr, hash
+```
+
+## Key Patterns
+
+- Mutaciones de DB solo en `storage.js` (RPC de alta). → [ADR-0001](../../.context/decisions/0001-supabase-persistence.md), [ADR-0002](../../.context/decisions/0002-folio-atomico-y-cola-offline.md)
+- Folio oficial al subir; offline = `PENDIENTE` en IndexedDB.
+- Verificación pública sin login.
+
+## Critical Rules
+
+1. **Start from [ARCHITECTURE.md](../../ARCHITECTURE.md).** It is the canonical map; this rule and [AGENTS.md](../../AGENTS.md) must agree with it.
+2. **`createClient` solo en `supabase.js`.** Altas vía RPC en `storage.js`. → [ADR-0001](../../.context/decisions/0001-supabase-persistence.md)
+3. **`.env` en la raíz**, no en `labotec/`. Nunca `service_role` en el cliente.
+4. **No hay i18n** — no exigir locales.
+5. **No calcular folio en el cliente.** Offline = `PENDIENTE`. → [ADR-0002](../../.context/decisions/0002-folio-atomico-y-cola-offline.md)
+6. **Secrets via env**, never hardcoded; never commit `.env*` (only `*.example`).
+7. **Don't silently update docs.** After substantial work, emit a `## Context-Update Assessment` — see [context-maintenance.mdc](context-maintenance.mdc).
+
+## Documentation
+
+This table is part of the triple-hub topology and is kept in sync by `ai-workflow-scaffold`.
+Do not hand-edit between the markers.
+
+<!-- aiscaffold:rules-table:start -->
+| Guidance | Rule | Always-on |
+|---|---|---|
+| Always-on architecture context | [`ordenes-labotec-architecture.mdc`](ordenes-labotec-architecture.mdc) | yes |
+| Context maintenance / doc orchestration | [`context-maintenance.mdc`](context-maintenance.mdc) | yes |
+| Core workflow | [`core-workflow.mdc`](core-workflow.mdc) | yes |
+| Git workflow | [`git-workflow.mdc`](git-workflow.mdc) | yes |
+| Verify-then-converge (AI-review loop) | [`verify-then-converge.mdc`](verify-then-converge.mdc) | yes |
+| Code review (repo overlay) | [`code-review.mdc`](code-review.mdc) | on-request |
+<!-- aiscaffold:rules-table:end -->
+
+| Engineering memory | Path |
+|---|---|
+| When / how to update docs | [context-maintenance.mdc](context-maintenance.mdc) |
+| System overview | [ARCHITECTURE.md](../../ARCHITECTURE.md) |
+| Agent guide (portable) | [AGENTS.md](../../AGENTS.md) |
+| Project vision | [.context/vision/project-vision.md](../../.context/vision/project-vision.md) |
+| Patterns | [.context/patterns/](../../.context/patterns/) |
+| Decisions / ADRs | [.context/decisions/](../../.context/decisions/) |
+| Constraints | [.context/constraints.md](../../.context/constraints.md) |
+| History | [.context/history.md](../../.context/history.md) |
+
+## When Working On...
+
+- Órdenes / Supabase → `storage.js`, ADR-0001
+- Formulario / folio / firmas → `useOrdenes.js`
+- `/verificar/:folio` → `main.jsx`, `Verificar.jsx`
+- Tipos de servicio → `config/marca.js`
+- Build / env → `vite.config.js`, `netlify.toml`, `core-workflow.mdc`

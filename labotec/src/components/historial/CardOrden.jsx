@@ -35,6 +35,7 @@ export default function CardOrden({ ord, busqueda, onVer, onEliminar }) {
         <div className={styles.tags}>
           <Tag variante="cyan">{ord.actividades.length} act.</Tag>
           {ord.refacciones?.length>0 && <Tag variante="naranja">{ord.refacciones.length} refac.</Tag>}
+          {ord.pending && <Tag variante="naranja">Pendiente de subir</Tag>}
           {(ord.firmaResp||ord.firmaIng) && <Tag variante="verde">✍ Firmada</Tag>}
         </div>
       </div>
